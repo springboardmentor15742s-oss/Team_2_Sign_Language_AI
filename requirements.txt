@@ -1,0 +1,91 @@
+# ============================================================
+#  SignBridge – AI Sign Language Learning & Assessment Platform
+#  B.Tech Final Year AIML | Infosys Springboard
+#  requirements.txt  –  Python backend dependencies
+# ============================================================
+#
+#  Install all:
+#      pip install -r requirements.txt
+#
+#  Recommended: create a virtual environment first
+#      python -m venv venv
+#      source venv/bin/activate        # Mac / Linux
+#      venv\Scripts\activate           # Windows
+#      pip install -r requirements.txt
+# ============================================================
+
+
+# ── Web Framework & API ──────────────────────────────────────
+fastapi==0.111.0                  # REST API + WebSocket server
+uvicorn[standard]==0.30.1         # ASGI server to run FastAPI
+websockets==12.0                  # Real-time gesture streaming
+python-multipart==0.0.9           # File upload support
+
+
+# ── Authentication & Security ────────────────────────────────
+python-jose[cryptography]==3.3.0  # JWT token creation & validation
+passlib[bcrypt]==1.7.4            # Password hashing (bcrypt)
+python-dotenv==1.0.0              # Load .env environment variables
+
+
+# ── Database ─────────────────────────────────────────────────
+sqlalchemy==2.0.30                # ORM for PostgreSQL
+psycopg2-binary==2.9.9            # PostgreSQL driver
+pymongo==4.7.2                    # MongoDB driver (video metadata)
+redis==5.0.4                      # Cache + session store
+
+
+# ── Computer Vision & Hand Tracking ─────────────────────────
+opencv-python==4.10.0.82          # Video capture, frame processing
+mediapipe==0.10.14                # Hand landmark detection (21 keypoints)
+
+
+# ── AI / Machine Learning ────────────────────────────────────
+tensorflow==2.16.1                # LSTM model training & inference
+scikit-learn==1.5.0               # train_test_split, metrics
+numpy==1.26.4                     # Array operations, landmark processing
+
+
+# ── Data & Notebooks ─────────────────────────────────────────
+pandas==2.2.2                     # CSV dataset loading (Sign MNIST)
+matplotlib==3.9.0                 # Training curves, confusion matrix
+seaborn==0.13.2                   # Heatmaps for confusion matrix
+jupyter==1.0.0                    # Training & exploration notebooks
+ipykernel==6.29.4                 # Jupyter kernel
+
+
+# ── Dataset Download ─────────────────────────────────────────
+kaggle==1.6.14                    # Download Sign MNIST & ASL Alphabet
+gdown==5.2.0                      # Download WLASL from Google Drive
+datasets==2.19.0                  # HuggingFace – RWTH-PHOENIX download
+
+
+# ── Text-to-Speech (Hindi, Marathi, English) ─────────────────
+gTTS==2.5.1                       # Google Text-to-Speech (multilingual)
+
+
+# ── Utilities ────────────────────────────────────────────────
+requests==2.32.2                  # HTTP requests
+aiofiles==23.2.1                  # Async file handling
+python-multipart==0.0.9           # Form data parsing
+Pillow==10.3.0                    # Image processing
+
+
+# ── Dev & Testing ────────────────────────────────────────────
+pytest==8.2.0                     # Unit testing
+httpx==0.27.0                     # Test FastAPI endpoints
+black==24.4.2                     # Code formatter
+
+
+# ============================================================
+#  Frontend (React) – install separately inside frontend/
+#  cd frontend && npm install
+#
+#  package.json includes:
+#    react@18           – UI framework
+#    react-dom@18       – DOM rendering
+#    react-scripts@5    – CRA build tooling
+#    chart.js           – Analytics charts
+#    axios              – API calls
+#    react-router-dom   – Page routing
+# ============================================================
