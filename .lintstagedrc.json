@@ -1,0 +1,10 @@
+{
+  "backend/**/*.py": [
+    "black",
+    "isort --profile black",
+    "flake8"
+  ],
+  "frontend/**/*.{js,jsx,ts,tsx,json,css,md}": [
+    "prettier --write"
+  ]
+}

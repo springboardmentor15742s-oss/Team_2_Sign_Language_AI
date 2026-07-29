@@ -1,0 +1,5 @@
+export const UI_CONSTANTS = {
+  NAVBAR_HEIGHT: '4rem',
+  SIDEBAR_WIDTH: '16rem',
+  ANIMATION_DURATION: 0.25,
+};
