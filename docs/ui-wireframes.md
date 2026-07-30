@@ -53,6 +53,8 @@ Status       : Complete (Milestone 1 Approved Deliverable)
 
 ## 1. Executive Overview & Objectives
 
+![SignLearn Complete UI Wireframes Blueprint & Visual Mockups Overview](../design/ui-wireframes.png)
+
 The **AI-Powered Sign Language Learning & Assessment Platform (SignLearn)** is a web-based educational platform designed to empower learners to master American Sign Language (ASL), Indian Sign Language (ISL), and British Sign Language (BSL). The platform integrates real-time interactive computer vision gesture evaluation, gamified curriculum paths, comprehensive self-assessment modules, and detailed progress analytics.
 
 ### Document Objectives:
@@ -482,9 +484,11 @@ Administrative console for dataset creators to upload raw gesture samples, revie
 
 ## 5. Visual Assets Reference
 
+![SignLearn UI Wireframes Specification Overview](../design/ui-wireframes.png)
+
 Visual design mockups and diagram graphics generated for this milestone are archived in the root `design/` folder:
-- `design/ui-wireframes.png`
-- `design/ui-wireframes.pdf`
+- [ui-wireframes.png](../design/ui-wireframes.png)
+- [ui-wireframes.pdf](../design/ui-wireframes.pdf)
 
 ---
 

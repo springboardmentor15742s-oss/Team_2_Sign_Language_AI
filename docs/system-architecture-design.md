@@ -62,6 +62,8 @@ Status       : Complete (Milestone 1 Approved Deliverable)
 
 ## 1. Executive Overview & Architectural Objectives
 
+![SignLearn System Architecture Overview Diagram](../design/system-architecture.png)
+
 The **AI-Powered Sign Language Learning & Assessment Platform (SignLearn)** architecture is designed to handle high-throughput real-time video landmark analysis, interactive gamified learning paths, secure multi-tenant identity management, and dataset annotation workflows.
 
 ### Architectural Objectives:
@@ -559,9 +561,11 @@ graph TD
 
 ## 6. Visual Assets Reference
 
+![SignLearn Platform Technical System Architecture Diagram](../design/system-architecture.png)
+
 Diagram graphics and visual technical blueprints generated for this milestone are archived in the root `design/` directory:
-- `design/system-architecture.png`
-- `design/system-architecture.pdf`
+- [system-architecture.png](../design/system-architecture.png)
+- [system-architecture.pdf](../design/system-architecture.pdf)
 
 ---
 

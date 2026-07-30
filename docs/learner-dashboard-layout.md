@@ -53,6 +53,8 @@ Status       : Complete (Milestone 1 Approved Deliverable)
 
 ## 1. Executive Overview & Objectives
 
+![SignLearn AI Learner Dashboard Visual Layout Design Architecture](../design/learner-dashboard-layout.png)
+
 The **SignLearn AI Learner Dashboard** serves as the central intelligent hub for sign language students. It aggregates real-time gesture accuracy metrics, daily learning streaks, gamified XP progress, AI recommendations, and upcoming curriculum milestones into a unified visual workspace.
 
 ---
@@ -366,9 +368,11 @@ graph TD
 
 ## 6. Visual Assets Reference
 
+![SignLearn Learner Dashboard Layout Architecture](../design/learner-dashboard-layout.png)
+
 Refer to visual exports located in the `design/` folder:
-- `design/learner-dashboard-layout.png`
-- `design/learner-dashboard-layout.pdf`
+- [learner-dashboard-layout.png](../design/learner-dashboard-layout.png)
+- [learner-dashboard-layout.pdf](../design/learner-dashboard-layout.pdf)
 
 ---
 
