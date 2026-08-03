@@ -1,0 +1,6 @@
+# Ignore all datasets
+datasets/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
