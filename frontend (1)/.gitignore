@@ -1,6 +1,0 @@
-.DS_Store
-.env
-backend/venv/
-backend/__pycache__/
-signspeak-frontend/node_modules/
-*.pyc
