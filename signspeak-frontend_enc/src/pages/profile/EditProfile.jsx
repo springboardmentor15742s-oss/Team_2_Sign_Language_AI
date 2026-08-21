@@ -1,0 +1,22 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, MapPin, Camera, Target } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { Input } from '../../components/ui/Input';
+import { Textarea } from '../../components/ui/Textarea';
+import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Breadcrumb } from '../../components/layout/Breadcrumb';
+import { useToast } from '../../hooks/useToast';
+import { SIGN_LANGUAGES, SKILL_LEVELS } from '../../constants/navigation';
+import { profileService } from '../../services/profileService';
+import { useAuth } from '../../hooks/useAuth';
+
+const goalOptions=['Daily Conversation','Travel Communication','Academic Learning','Professional Communication','Accessibility & Inclusion'];
+export default function EditProfile(){const nav=useNavigate();const {addToast}=useToast();const {user,updateUser}=useAuth();const [loading,setLoading]=useState(true);const [saving,setSaving]=useState(false);const {register,handleSubmit,reset,watch,setValue}=useForm({defaultValues:{full_name:'',email:'',location:'',bio:'',preferred_language:'ASL',learning_level:'beginner',learning_goals:[]}});
+ useEffect(()=>{profileService.getProfile().then(r=>{const p=r.data;reset({full_name:p.full_name||'',email:p.email||'',location:p.location||'',bio:p.bio||'',preferred_language:p.preferred_language||'ASL',learning_level:p.learning_level||'beginner',learning_goals:p.learning_goals||[]});setLoading(false)}).catch(()=>setLoading(false))},[reset]);
+ const goals=watch('learning_goals')||[];const toggleGoal=g=>setValue('learning_goals',goals.includes(g)?goals.filter(x=>x!==g):[...goals,g]);
+ const submit=async(data)=>{setSaving(true);try{const r=await profileService.updateProfile(data);updateUser(r.data);addToast('Learner profile updated successfully','success');nav('/profile')}catch(e){addToast(e.response?.data?.detail||'Unable to update profile','error')}finally{setSaving(false)}};
+ if(loading)return <div className="py-20 text-center text-slate-500">Loading profile…</div>;
+ return <div className="max-w-3xl mx-auto space-y-6"><Breadcrumb items={[{label:'Profile',path:'/profile'},{label:'Edit'}]}/><h1 className="text-3xl font-bold text-white">Learner Profile</h1><p className="text-sm text-slate-500 -mt-4">Keep your learning preferences and goals up to date.</p><form onSubmit={handleSubmit(submit)} className="space-y-6"><Card><h3 className="font-semibold text-white mb-4">Profile Photo</h3><div className="flex items-center gap-4"><div className="w-20 h-20 rounded-xl bg-cyan-500/10 flex items-center justify-center"><User size={32} className="text-[#20d8d3]"/></div><div><Button size="sm" variant="outline" type="button"><Camera size={14}/> Avatar URL</Button><p className="text-xs text-slate-600 mt-2">Use the field below to save a hosted avatar.</p></div></div><div className="mt-4"><Input label="Avatar URL" {...register('avatar_url')}/></div></Card><Card><h3 className="font-semibold text-white mb-4">Personal Information</h3><div className="space-y-4"><Input label="Full Name" icon={User} {...register('full_name',{required:'Name is required'})}/><Input label="Email" type="email" icon={Mail} value={user?.email||''} readOnly/><Input label="Location" icon={MapPin} {...register('location')}/><Textarea label="Bio" placeholder="Tell us about yourself..." {...register('bio')}/></div></Card><Card><h3 className="font-semibold text-white mb-4">Learning Preferences</h3><div className="space-y-4"><Select label="Preferred Sign Language" options={SIGN_LANGUAGES} {...register('preferred_language')}/><Select label="Current Skill Level" options={SKILL_LEVELS} {...register('learning_level')}/><div><label className="text-sm font-medium text-slate-300 flex items-center gap-2 mb-2"><Target size={15}/> Learning Goals</label><div className="flex flex-wrap gap-2">{goalOptions.map(g=><button type="button" key={g} onClick={()=>toggleGoal(g)} className={`px-3 py-2 rounded-lg text-xs border transition ${goals.includes(g)?'border-[#16c8c4] bg-[#16c8c4]/10 text-[#20d8d3]':'border-slate-800 bg-[#11161f] text-slate-500'}`}>{g}</button>)}</div></div></div></Card><div className="flex gap-3"><Button type="submit" loading={saving}>Save Changes</Button><Button type="button" variant="ghost" onClick={()=>nav('/profile')}>Cancel</Button></div></form></div>}

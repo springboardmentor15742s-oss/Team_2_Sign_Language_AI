@@ -1,0 +1,39 @@
+{
+  "evaluated_at": "2026-08-20T14:04:17.801237+00:00",
+  "test_samples": 348,
+  "feature_count": 82,
+  "models": [
+    {
+      "model_name": "RandomForestSignClassifier",
+      "accuracy": 0.977,
+      "precision_macro": 0.9803,
+      "recall_macro": 0.977,
+      "f1_macro": 0.9776,
+      "status": "current"
+    },
+    {
+      "model_name": "LogisticRegression",
+      "accuracy": 0.8937,
+      "precision_macro": 0.9296,
+      "recall_macro": 0.8937,
+      "f1_macro": 0.8948,
+      "status": "candidate"
+    },
+    {
+      "model_name": "SVM (RBF kernel)",
+      "accuracy": 0.8592,
+      "precision_macro": 0.9192,
+      "recall_macro": 0.8592,
+      "f1_macro": 0.8675,
+      "status": "candidate"
+    },
+    {
+      "model_name": "KNN (k=5)",
+      "accuracy": 0.9282,
+      "precision_macro": 0.9371,
+      "recall_macro": 0.9282,
+      "f1_macro": 0.9282,
+      "status": "candidate"
+    }
+  ]
+}
