@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     # Database
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_NAME: str = "signspeak"
-    DB_USER: str = "postgres"
+    DB_NAME: str = "sign_language_platform"
+    DB_USER: str = "dheekshika"
     DB_PASSWORD: str = ""
 
     # Security
