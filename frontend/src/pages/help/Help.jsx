@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { HelpCircle, MessageCircle, Mail, ChevronDown, ChevronRight, BookOpen, FileText, Shield } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
-import { MOCK_FAQS } from '../../constants/mockData';
+import { FAQS } from '../../constants/mockData';
 
 export default function Help() {
   const [openFaq, setOpenFaq] = useState(null);
@@ -37,7 +37,7 @@ export default function Help() {
       <Card className="mb-8">
         <h3 className="font-semibold text-gray-900 mb-4">Frequently Asked Questions</h3>
         <div className="space-y-2">
-          {MOCK_FAQS.map((faq, i) => (
+          {FAQS.map((faq, i) => (
             <div key={i} className="border border-gray-100 rounded-xl overflow-hidden">
               <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors">
                 <span className="text-sm font-medium text-gray-900">{faq.question}</span>

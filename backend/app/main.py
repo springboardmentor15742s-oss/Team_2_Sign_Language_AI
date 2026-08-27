@@ -5,7 +5,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.middleware.error_handlers import register_error_handlers
-from app.routers import auth, users, courses, lessons, assessments, reports, notifications, practice, admin
+from app.routers import (
+    auth,
+    users,
+    courses,
+    lessons,
+    assessments,
+    reports,
+    notifications,
+    practice,
+    admin,
+    ml,
+)
 
 logging.basicConfig(level=logging.INFO)
 settings.validate_security()
@@ -44,6 +55,7 @@ ROUTERS = [
     notifications.router,
     practice.router,
     admin.router,
+    ml.router,
 ]
 
 # Canonical versioned API.

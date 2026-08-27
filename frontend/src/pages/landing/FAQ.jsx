@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
-import { MOCK_FAQS } from '../../constants/mockData';
+import { FAQS } from '../../constants/mockData';
 
 export default function FAQPage() {
   const [openFaq, setOpenFaq] = useState(null);
@@ -15,7 +15,7 @@ export default function FAQPage() {
         <p className="text-gray-500">Everything you need to know about SignSpeak</p>
       </div>
       <div className="space-y-3">
-        {MOCK_FAQS.map((faq, i) => (
+        {FAQS.map((faq, i) => (
           <Card key={i} padding="none" className="overflow-hidden">
             <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors">
               <span className="text-sm font-medium text-gray-900 pr-4">{faq.question}</span>

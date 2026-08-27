@@ -47,7 +47,7 @@ export default function Home() {
                 <Link to="/about"><Button size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white">Explore platform</Button></Link>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs text-slate-400">
-                {['Interactive lessons', 'AI-ready practice', 'Performance analytics'].map(item => (
+                {['Interactive lessons', 'AI-powered practice', 'Performance analytics'].map(item => (
                   <span key={item} className="inline-flex items-center gap-2"><CheckCircle2 size={14} className="text-emerald-400" />{item}</span>
                 ))}
               </div>
@@ -71,7 +71,7 @@ export default function Home() {
                     <div className="grid grid-cols-3 gap-2 mt-3">
                       {['Hand shape', 'Motion', 'Position'].map((item, i) => (
                         <div key={item} className="rounded-xl bg-white/5 border border-white/10 p-3">
-                          <p className="text-[10px] text-slate-500">{item}</p><p className="mt-1 text-sm font-bold text-slate-200">—</p>
+                          <p className="text-[10px] text-slate-500">{item}</p><p className="mt-1 text-xs font-semibold text-cyan-300">Ready</p>
                         </div>
                       ))}
                     </div>
@@ -86,11 +86,11 @@ export default function Home() {
       <section className="border-b border-slate-100 bg-white">
         <div className="container-page py-9 grid grid-cols-2 lg:grid-cols-4 gap-7">
           {[
-            ['4', 'Learning levels', 'Beginner → Professional'],
-            ['5', 'Core AI feedback signals', 'Shape, motion, position, timing + more'],
-            ['5', 'Performance dimensions', 'Accuracy, assessments, completion, consistency, improvement'],
-            ['3', 'Primary dashboard roles', 'Learner, instructor, accessibility trainer'],
-          ].map(([value, title, sub]) => (
+  ['ASL', 'Learning focus', 'Structured alphabet learning'],
+  ['AI', 'Gesture recognition', 'Prediction and confidence analysis'],
+  ['LIVE', 'Performance tracking', 'Practice, assessments and progress'],
+  ['4', 'Platform roles', 'Learner, instructor, trainer and admin'],
+].map(([value, title, sub]) => (
             <div key={title}><p className="text-3xl font-bold text-primary">{value}</p><p className="mt-1 text-sm font-bold text-slate-900">{title}</p><p className="mt-1 text-xs text-slate-500">{sub}</p></div>
           ))}
         </div>
@@ -101,7 +101,7 @@ export default function Home() {
           <div className="max-w-2xl mb-12">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Platform capabilities</p>
             <h2 className="mt-3 text-3xl lg:text-4xl font-bold text-slate-950">Everything needed for an end-to-end learning workflow.</h2>
-            <p className="mt-4 text-slate-500 leading-7">The interface is organized around the project specification: learning, gesture recognition, assessment, AI correction, analytics, and certification.</p>
+            <p className="mt-4 text-slate-500 leading-7">The interface is organized around the project specification: learning, gesture recognition, assessment, AI feedback, and performance analytics.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((feature, i) => (

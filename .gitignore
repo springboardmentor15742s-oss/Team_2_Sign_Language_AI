@@ -38,3 +38,24 @@ ml/mlartifacts/
 !ml/data/processed/.gitkeep
 !ml/data/landmarks/.gitkeep
 ml/notebooks/.ipynb_checkpoints/
+
+# ML generated features
+ml/data/features/
+
+# Downloaded ML model assets
+ml/models/mediapipe/
+
+# Generated trained ML models
+ml/models/trained/
+
+# Environment files
+.env.*
+!.env.example
+frontend/.env
+backend/.env
+
+# Local ML environment
+ml/cnn_venv/
+
+# Personal/custom external test images
+ml/data/custom_test/

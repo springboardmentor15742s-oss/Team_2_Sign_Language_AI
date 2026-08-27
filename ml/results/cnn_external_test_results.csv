@@ -1,0 +1,6 @@
+Expected,Predicted,Confidence (%),Correct
+A,N,46.04,False
+B,E,43.37,False
+C,O,56.65,False
+L,Q,82.06,False
+V,K,57.06,False
