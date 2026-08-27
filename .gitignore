@@ -6,3 +6,4 @@ signspeak-frontend/node_modules/
 *.pyc
 
 node_modules/
+dist/
