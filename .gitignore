@@ -1,0 +1,21 @@
+# Exclude the main app folders
+frontend/
+backend/
+
+# Exclude Python virtual environments
+venv/
+env/
+.env
+
+# Exclude Large Datasets (GitHub has a 100MB limit)
+ml_engine/data/asl_alphabet_train/
+ml_engine/data/landmarks.csv
+
+# Exclude Python cache files
+__pycache__/
+*.pyc
+
+# Exclude OS-specific files
+.DS_Store
+Thumbs.db
+

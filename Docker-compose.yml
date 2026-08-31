@@ -1,0 +1,35 @@
+services:
+  # Module 11: Database Persistence
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: signbridge
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Module 14: Backend Integration
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/signbridge
+    depends_on:
+      - db
+    volumes:
+      - ./ml_engine:/app/ml_engine # Mount the AI models
+
+  # Module 14: Frontend Integration
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
