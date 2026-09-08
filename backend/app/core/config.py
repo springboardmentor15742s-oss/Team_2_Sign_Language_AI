@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "sign_language_platform"
     DB_USER: str = "dheekshika"
     DB_PASSWORD: str = ""
+    DATABASE_URL_OVERRIDE: str | None = None
 
     # Security
     SECRET_KEY: str = "dev_secret_key_change_me"
@@ -32,10 +33,30 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        if self.DATABASE_URL_OVERRIDE:
+            url = self.DATABASE_URL_OVERRIDE
+
+            # Railway commonly provides postgres:// or postgresql://.
+            # SQLAlchemy should explicitly use psycopg2.
+            if url.startswith("postgres://"):
+                url = url.replace(
+                    "postgres://",
+                    "postgresql+psycopg2://",
+                    1,
+                )
+            elif url.startswith("postgresql://"):
+                url = url.replace(
+                    "postgresql://",
+                    "postgresql+psycopg2://",
+                    1,
+                )
+
+            return url
+
         return (
-    f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}"
-    f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-)
+            f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
