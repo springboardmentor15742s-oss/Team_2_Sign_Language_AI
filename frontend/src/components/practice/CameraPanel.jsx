@@ -139,13 +139,6 @@ export const CameraPanel = forwardRef(
         video.videoWidth > 0 &&
         video.videoHeight > 0
       ) {
-        console.log(
-          'Camera ready:',
-          video.videoWidth,
-          'x',
-          video.videoHeight
-        );
-
         setIsReady(true);
         setError(null);
       }

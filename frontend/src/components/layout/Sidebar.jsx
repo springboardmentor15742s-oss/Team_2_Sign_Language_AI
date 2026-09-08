@@ -33,20 +33,18 @@ function NavSection({ title, links, location }) {
       <p className="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-[0.18em]">{title}</p>
       <div className="space-y-1">
         {links.map((link) => {
-          const active = location.pathname === link.path || (!link.disabled && location.pathname.startsWith(link.path + '/'));
+          const active = location.pathname === link.path || location.pathname.startsWith(link.path + '/');
           const content = (
             <span className={classNames(
               'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-              active ? 'bg-[#1b2230] text-white' : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-200',
-              link.disabled && 'opacity-50 cursor-not-allowed'
+              active ? 'bg-[#1b2230] text-white' : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-200'
             )}>
               {active && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-[#16d4d0]" />}
               <link.icon size={18} className={active ? 'text-[#16d4d0]' : 'text-slate-500'} />
               <span>{link.name}</span>
-              {link.disabled && <span className="ml-auto text-[9px] uppercase tracking-wider text-slate-600">Soon</span>}
             </span>
           );
-          return link.disabled ? <div key={link.name}>{content}</div> : <Link key={link.name} to={link.path}>{content}</Link>;
+          return <Link key={link.name} to={link.path}>{content}</Link>;
         })}
       </div>
     </div>

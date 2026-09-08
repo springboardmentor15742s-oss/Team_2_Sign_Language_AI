@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -34,6 +35,9 @@ from app.schemas.auth import (
     MessageResponse,
 )
 from app.schemas.user import UserCreate, UserOut
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -371,9 +375,9 @@ def forgot_password(
         db.delete(db_token)
         db.commit()
 
-        print(
-            "Password reset email failed:",
-            exc,
+        logger.exception(
+            "Password reset email failed for user_id=%s",
+            user.id,
         )
 
         raise HTTPException(

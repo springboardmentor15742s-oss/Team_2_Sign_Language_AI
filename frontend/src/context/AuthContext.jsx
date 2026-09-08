@@ -130,8 +130,9 @@ export function AuthProvider({ children }) {
     try {
       await authService.logout();
 
-    } catch (error) {
-      console.log("Logout API error", error);
+    } catch {
+      // Logout remains successful locally even if the
+      // stateless backend logout request is unavailable.
     }
 
 
