@@ -33,13 +33,23 @@ app = FastAPI(
 )
 
 # ---------- CORS ----------
+allowed_origins = [settings.FRONTEND_ORIGIN]
+
+if settings.ADDITIONAL_CORS_ORIGINS:
+    allowed_origins.extend(
+        origin.strip()
+        for origin in settings.ADDITIONAL_CORS_ORIGINS.split(",")
+        if origin.strip()
+    )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_ORIGIN],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
 
 # ---------- Global error handlers ----------
 register_error_handlers(app)

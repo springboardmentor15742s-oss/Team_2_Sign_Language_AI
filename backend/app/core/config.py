@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     # CORS
     FRONTEND_ORIGIN: str = "http://localhost:5173"
+    ADDITIONAL_CORS_ORIGINS: str = ""
 
     # Email / password reset
     RESEND_API_KEY: str = ""
