@@ -28,6 +28,8 @@ import Assessment from '../pages/assessments/Assessment';
 import AssessmentResults from '../pages/assessments/AssessmentResults';
 
 import Reports from '../pages/reports/Reports';
+import Certificates from '../pages/certificates/Certificates';
+import Achievements from '../pages/achievements/Achievements';
 
 import Notifications from '../pages/notifications/Notifications';
 
@@ -80,6 +82,8 @@ export const router = createBrowserRouter([
       { path: 'assessment/:id', element: <Assessment /> },
       { path: 'assessment-results', element: <AssessmentResults /> },
       { path: 'reports', element: <Reports /> },
+      { path: 'certificates', element: <Certificates /> },
+      { path: 'achievements', element: <Achievements /> },
       { path: 'notifications', element: <Notifications /> },
       { path: 'settings', element: <Settings /> },
       { path: 'help', element: <Help /> },

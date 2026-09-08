@@ -214,95 +214,72 @@ export default function Lesson() {
     null;
 
 
-  const getYouTubeEmbedUrl = (url) => {
+  const parseYouTubeTime = (value) => {
+    if (!value) return 0;
 
-    if (!url) {
-      return null;
+    if (/^\d+$/.test(value)) {
+      return Number(value);
     }
+
+    const match = value.match(
+      /(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/
+    );
+
+    if (!match) return 0;
+
+    return (
+      Number(match[1] || 0) * 3600 +
+      Number(match[2] || 0) * 60 +
+      Number(match[3] || 0)
+    );
+  };
+
+
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
 
     try {
-
       const parsedUrl = new URL(url);
 
-      /*
-       * Standard YouTube URL
-       * https://www.youtube.com/watch?v=VIDEO_ID
-       */
-      if (
-        parsedUrl.hostname.includes('youtube.com') &&
-        parsedUrl.pathname === '/watch'
-      ) {
+      let videoId = null;
 
-        const videoId =
-          parsedUrl.searchParams.get('v');
-
-        return videoId
-          ? `https://www.youtube.com/embed/${videoId}`
-          : null;
-      }
-
-
-      /*
-       * Short YouTube URL
-       * https://youtu.be/VIDEO_ID
-       */
-      if (
-        parsedUrl.hostname === 'youtu.be' ||
-        parsedUrl.hostname === 'www.youtu.be'
-      ) {
-
-        const videoId =
-          parsedUrl.pathname
+      if (parsedUrl.hostname.includes('youtu.be')) {
+        videoId = parsedUrl.pathname
+          .split('/')
+          .filter(Boolean)[0];
+      } else if (parsedUrl.hostname.includes('youtube.com')) {
+        if (parsedUrl.pathname.startsWith('/embed/')) {
+          videoId = parsedUrl.pathname
             .split('/')
-            .filter(Boolean)[0];
-
-        return videoId
-          ? `https://www.youtube.com/embed/${videoId}`
-          : null;
-      }
-
-
-      /*
-       * YouTube Shorts
-       * https://youtube.com/shorts/VIDEO_ID
-       */
-      if (
-        parsedUrl.hostname.includes('youtube.com') &&
-        parsedUrl.pathname.startsWith('/shorts/')
-      ) {
-
-        const parts =
-          parsedUrl.pathname
+            .filter(Boolean)[1];
+        } else if (parsedUrl.pathname.startsWith('/shorts/')) {
+          videoId = parsedUrl.pathname
             .split('/')
-            .filter(Boolean);
-
-        const videoId = parts[1];
-
-        return videoId
-          ? `https://www.youtube.com/embed/${videoId}`
-          : null;
+            .filter(Boolean)[1];
+        } else {
+          videoId = parsedUrl.searchParams.get('v');
+        }
       }
 
-
-      /*
-       * Already an embed URL
-       */
-      if (
-        parsedUrl.hostname.includes('youtube.com') &&
-        parsedUrl.pathname.startsWith('/embed/')
-      ) {
-        return url;
+      if (!videoId) {
+        return null;
       }
 
+      const timeValue =
+        parsedUrl.searchParams.get('t') ||
+        parsedUrl.searchParams.get('start');
 
-      return null;
+      const startTime =
+        parseYouTubeTime(timeValue);
 
+      return `https://www.youtube.com/embed/${videoId}${
+        startTime
+          ? `?start=${startTime}`
+          : ''
+      }`;
     } catch {
-
       return null;
-
     }
-
   };
 
 

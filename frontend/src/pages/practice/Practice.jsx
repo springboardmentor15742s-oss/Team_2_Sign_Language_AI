@@ -27,43 +27,43 @@ import { mlService } from '../../services/mlService';
 import { practiceService } from '../../services/practiceService';
 
 
-const PRACTICE_SIGNS = [
-  {
-    id: 1,
-    sign: 'A',
-    name: 'Letter A',
-    instruction:
-      'Make a fist with your thumb resting on the side of your index finger.',
-  },
-  {
-    id: 2,
-    sign: 'B',
-    name: 'Letter B',
-    instruction:
-      'Hold your hand flat with all fingers together and thumb tucked in.',
-  },
-  {
-    id: 3,
-    sign: 'C',
-    name: 'Letter C',
-    instruction:
-      'Curve your fingers and thumb to form a C shape.',
-  },
-  {
-    id: 4,
-    sign: 'L',
-    name: 'Letter L',
-    instruction:
-      'Extend your thumb and index finger to create an L shape.',
-  },
-  {
-    id: 5,
-    sign: 'V',
-    name: 'Letter V',
-    instruction:
-      'Extend your index and middle fingers apart while keeping the remaining fingers folded.',
-  },
-];
+const SIGN_INSTRUCTIONS = {
+  A: 'Make a fist with your thumb resting on the side of your index finger.',
+  B: 'Hold your hand flat with fingers together and your thumb folded across the palm.',
+  C: 'Curve your fingers and thumb to form a C shape.',
+  D: 'Touch your thumb to your middle, ring and little fingers while keeping your index finger raised.',
+  E: 'Curl your fingers toward your palm with your thumb resting underneath.',
+  F: 'Touch your thumb and index finger together while keeping the other three fingers extended.',
+  G: 'Point your index finger sideways with your thumb parallel underneath.',
+  H: 'Extend your index and middle fingers together sideways.',
+  I: 'Make a fist and extend only your little finger.',
+  J: 'Start with the I handshape and trace a J movement with your little finger.',
+  K: 'Extend your index and middle fingers upward with your thumb placed between them.',
+  L: 'Extend your thumb and index finger to form an L shape.',
+  M: 'Fold your thumb under your index, middle and ring fingers.',
+  N: 'Fold your thumb under your index and middle fingers.',
+  O: 'Curve all fingertips toward your thumb to form an O shape.',
+  P: 'Use the K handshape and point it downward.',
+  Q: 'Use the G handshape and point it downward.',
+  R: 'Cross your index and middle fingers while keeping the remaining fingers folded.',
+  S: 'Make a fist with your thumb placed across the front of your fingers.',
+  T: 'Make a fist with your thumb tucked between your index and middle fingers.',
+  U: 'Extend your index and middle fingers together upward.',
+  V: 'Extend your index and middle fingers apart in a V shape.',
+  W: 'Extend your index, middle and ring fingers while folding the remaining fingers.',
+  X: 'Make a fist and bend your index finger into a hook shape.',
+  Y: 'Extend your thumb and little finger while keeping the middle fingers folded.',
+  Z: 'Use your index finger to trace the shape of Z in the air.',
+};
+
+const PRACTICE_SIGNS = Object.entries(SIGN_INSTRUCTIONS).map(
+  ([sign, instruction], index) => ({
+    id: index + 1,
+    sign,
+    name: `Letter ${sign}`,
+    instruction,
+  })
+);
 
 
 export default function Practice() {
@@ -76,6 +76,7 @@ export default function Practice() {
   const [confidence, setConfidence] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isLiveEvaluation, setIsLiveEvaluation] = useState(false);
 
   const [sessionId, setSessionId] = useState(null);
   const [attempts, setAttempts] = useState(0);
@@ -290,7 +291,74 @@ export default function Practice() {
   };
 
 
+  useEffect(() => {
+    if (
+      !isLiveEvaluation ||
+      isPaused ||
+      isAnalyzing
+    ) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      analyzeSign();
+    }, 1500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [
+    isLiveEvaluation,
+    isPaused,
+    isAnalyzing,
+    attempts,
+    currentIndex,
+  ]);
+
+
+  const toggleLiveEvaluation = () => {
+    if (isLiveEvaluation) {
+      setIsLiveEvaluation(false);
+
+      setFeedback({
+        type: 'tip',
+        title: 'Live evaluation stopped',
+        message:
+          'You can restart live evaluation whenever you are ready.',
+      });
+
+      return;
+    }
+
+    if (
+      !cameraRef.current ||
+      !cameraRef.current.isCameraActive() ||
+      !cameraRef.current.isCameraReady()
+    ) {
+      setFeedback({
+        type: 'error',
+        title: 'Camera required',
+        message:
+          'Start the camera and wait until it is ready before enabling live evaluation.',
+      });
+
+      return;
+    }
+
+    setIsLiveEvaluation(true);
+
+    setFeedback({
+      type: 'success',
+      title: 'Live evaluation started',
+      message:
+        'Hold the target gesture clearly. SignSpeak will evaluate it automatically.',
+    });
+  };
+
+
   const nextSign = () => {
+    setIsLiveEvaluation(false);
+
     setCurrentIndex(
       (value) =>
         (value + 1) %
@@ -302,12 +370,14 @@ export default function Practice() {
 
 
   const selectSign = (index) => {
+    setIsLiveEvaluation(false);
     setCurrentIndex(index);
     clearSession();
   };
 
 
   const reset = () => {
+    setIsLiveEvaluation(false);
     setTimer(0);
     setIsPaused(false);
     clearSession();
@@ -483,7 +553,9 @@ export default function Practice() {
                   </p>
 
                   <p className="text-xs text-slate-500">
-                    Camera → ML prediction → feedback
+                    {isLiveEvaluation
+                      ? 'Live camera → continuous ML evaluation → feedback'
+                      : 'Camera → ML prediction → feedback'}
                   </p>
                 </div>
 
@@ -494,7 +566,9 @@ export default function Practice() {
 
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
 
-                AI Ready
+                {isLiveEvaluation
+                  ? 'Live Evaluation'
+                  : 'AI Ready'}
 
               </span>
 
@@ -745,8 +819,9 @@ export default function Practice() {
 
               <p className="text-xs leading-5 text-slate-400">
                 Keep your hand inside the guide,
-                use good lighting, and hold the
-                gesture steady before analyzing.
+                use good lighting, and hold the gesture steady.
+                Use Live Evaluation for continuous recognition
+                or Analyze AI for a single prediction.
               </p>
 
             </div>
@@ -755,9 +830,23 @@ export default function Practice() {
             <div className="mt-5 space-y-2">
 
               <Button
+                variant={isLiveEvaluation ? 'outline' : 'primary'}
+                className="w-full"
+                onClick={toggleLiveEvaluation}
+                disabled={isAnalyzing}
+              >
+                <Zap size={16} />
+
+                {isLiveEvaluation
+                  ? 'Stop Live Evaluation'
+                  : 'Start Live Evaluation'}
+              </Button>
+
+
+              <Button
                 className="w-full"
                 onClick={analyzeSign}
-                disabled={isAnalyzing}
+                disabled={isAnalyzing || isLiveEvaluation}
               >
                 {isAnalyzing ? (
                   <>

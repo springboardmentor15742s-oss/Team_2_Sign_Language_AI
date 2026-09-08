@@ -30,6 +30,7 @@ import { reportService } from '../../services/reportService';
 import { courseService } from '../../services/courseService';
 import { notificationService } from '../../services/notificationService';
 import { mlService } from '../../services/mlService';
+import certificateService from '../../services/certificateService';
 
 import apiClient from '../../services/apiClient';
 
@@ -219,6 +220,7 @@ export default function Dashboard() {
   enrolled: [],
   notifications: [],
   signPerformance: null,
+certificates: [],
 });
 
   const [
@@ -252,6 +254,7 @@ export default function Dashboard() {
   courseService.getEnrolled(),
   notificationService.getNotifications(),
   reportService.getSignPerformance(),
+  certificateService.getCertificates(),
 ]).then((results) => {
       if (!active) {
         return;
@@ -272,6 +275,11 @@ export default function Dashboard() {
   enrolled: value(7) || [],
   notifications: value(8) || [],
   signPerformance: value(9) || null,
+  certificates:
+    results[10]?.status === 'fulfilled' &&
+    Array.isArray(results[10].value)
+      ? results[10].value
+      : [],
 });
     });
 
@@ -308,9 +316,8 @@ export default function Dashboard() {
   );
 
         /*
-         * Temporary prototype sign groups.
-         * Later these should be derived from
-         * real per-sign learner performance.
+         * Personalized sign groups derived from
+         * the learner's real practice performance.
          */
         const weakSigns =
   data.signPerformance
@@ -525,6 +532,37 @@ const strongSigns =
             .length
         )
       : 0;
+
+  const completedCourses =
+    (
+      Array.isArray(data.enrolled)
+        ? data.enrolled
+        : []
+    ).filter(
+      (entry) =>
+        Number(
+          entry.progress_percent || 0
+        ) >= 100
+    ).length;
+
+  const certificatesEarned =
+    Array.isArray(data.certificates)
+      ? data.certificates.length
+      : 0;
+
+  const latestCertificate =
+    Array.isArray(data.certificates) &&
+    data.certificates.length
+      ? [...data.certificates].sort(
+          (a, b) =>
+            new Date(
+              b.issued_at || 0
+            ) -
+            new Date(
+              a.issued_at || 0
+            )
+        )[0]
+      : null;
 
   const totalPracticeMinutes =
     (
@@ -900,7 +938,8 @@ const strongSigns =
         className="
           grid
           sm:grid-cols-2
-          xl:grid-cols-4
+          lg:grid-cols-3
+          xl:grid-cols-6
           gap-4
         "
       >
@@ -937,6 +976,30 @@ const strongSigns =
           subtext={`${data.enrolled.length} enrolled courses`}
           icon={BookOpen}
           tone="amber"
+        />
+
+        <MetricCard
+          label="Courses Completed"
+          value={completedCourses}
+          subtext={
+            completedCourses === 1
+              ? '1 learning path completed'
+              : `${completedCourses} learning paths completed`
+          }
+          icon={CheckCircle2}
+          tone="emerald"
+        />
+
+        <MetricCard
+          label="Certificates Earned"
+          value={certificatesEarned}
+          subtext={
+            certificatesEarned
+              ? 'Verified SignSpeak credentials'
+              : 'Complete a course to unlock'
+          }
+          icon={Award}
+          tone="violet"
         />
 
       </div>
@@ -1241,6 +1304,422 @@ const strongSigns =
         </Card>
 
       </div>
+
+
+      {/* ===================================================
+          COMPLETION + CERTIFICATION
+      =================================================== */}
+
+      <section
+        className="
+          relative
+          overflow-hidden
+          rounded-[28px]
+          border
+          border-emerald-500/20
+          bg-gradient-to-br
+          from-[#101a1b]
+          via-[#111820]
+          to-[#151628]
+          p-6
+          lg:p-8
+        "
+      >
+
+        <div
+          className="
+            absolute
+            right-[-100px]
+            top-[-130px]
+            h-[280px]
+            w-[280px]
+            rounded-full
+            bg-emerald-500/10
+            blur-3xl
+          "
+        />
+
+        <div
+          className="
+            relative
+            grid
+            lg:grid-cols-[1.15fr_0.85fr]
+            gap-7
+            items-center
+          "
+        >
+
+          <div>
+
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-2
+                text-[11px]
+                font-bold
+                uppercase
+                tracking-[0.15em]
+                text-emerald-400
+              "
+            >
+              <Award size={14} />
+              Learning Achievement
+            </div>
+
+            <h2
+              className="
+                mt-2
+                text-2xl
+                lg:text-3xl
+                font-bold
+                tracking-tight
+                text-white
+              "
+            >
+              Completion & Certification
+            </h2>
+
+            <p
+              className="
+                mt-2
+                max-w-2xl
+                text-sm
+                leading-6
+                text-slate-500
+              "
+            >
+              Track completed learning paths and access
+              certificates earned through SignSpeak.
+            </p>
+
+
+            <div
+              className="
+                mt-6
+                grid
+                sm:grid-cols-2
+                gap-3
+              "
+            >
+
+              <div
+                className="
+                  rounded-2xl
+                  border
+                  border-slate-800
+                  bg-black/10
+                  p-4
+                "
+              >
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                  "
+                >
+                  <div
+                    className="
+                      h-10
+                      w-10
+                      rounded-xl
+                      bg-emerald-500/10
+                      text-emerald-400
+                      flex
+                      items-center
+                      justify-center
+                    "
+                  >
+                    <CheckCircle2 size={18} />
+                  </div>
+
+                  <div>
+                    <p
+                      className="
+                        text-2xl
+                        font-bold
+                        text-white
+                      "
+                    >
+                      {completedCourses}
+                    </p>
+
+                    <p
+                      className="
+                        text-xs
+                        text-slate-500
+                      "
+                    >
+                      Courses completed
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+
+              <div
+                className="
+                  rounded-2xl
+                  border
+                  border-slate-800
+                  bg-black/10
+                  p-4
+                "
+              >
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                  "
+                >
+                  <div
+                    className="
+                      h-10
+                      w-10
+                      rounded-xl
+                      bg-violet-500/10
+                      text-violet-400
+                      flex
+                      items-center
+                      justify-center
+                    "
+                  >
+                    <Award size={18} />
+                  </div>
+
+                  <div>
+                    <p
+                      className="
+                        text-2xl
+                        font-bold
+                        text-white
+                      "
+                    >
+                      {certificatesEarned}
+                    </p>
+
+                    <p
+                      className="
+                        text-xs
+                        text-slate-500
+                      "
+                    >
+                      Certificates earned
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div
+            className="
+              rounded-3xl
+              border
+              border-white/10
+              bg-white/[0.035]
+              p-5
+              lg:p-6
+            "
+          >
+
+            {latestCertificate ? (
+              <>
+                <div
+                  className="
+                    flex
+                    items-start
+                    justify-between
+                    gap-4
+                  "
+                >
+                  <div>
+                    <p
+                      className="
+                        text-[10px]
+                        font-bold
+                        uppercase
+                        tracking-[0.14em]
+                        text-slate-500
+                      "
+                    >
+                      Latest Credential
+                    </p>
+
+                    <h3
+                      className="
+                        mt-2
+                        text-lg
+                        font-bold
+                        leading-6
+                        text-white
+                      "
+                    >
+                      {latestCertificate.title}
+                    </h3>
+
+                    <p
+                      className="
+                        mt-2
+                        text-xs
+                        text-slate-500
+                      "
+                    >
+                      Issued{' '}
+                      {latestCertificate.issued_at
+                        ? new Date(
+                            latestCertificate.issued_at
+                          ).toLocaleDateString(
+                            'en-IN',
+                            {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            }
+                          )
+                        : 'recently'}
+                    </p>
+                  </div>
+
+                  <div
+                    className="
+                      h-12
+                      w-12
+                      shrink-0
+                      rounded-2xl
+                      bg-emerald-500/10
+                      text-emerald-400
+                      flex
+                      items-center
+                      justify-center
+                    "
+                  >
+                    <Award size={22} />
+                  </div>
+                </div>
+
+                {latestCertificate.certificate_number && (
+                  <div
+                    className="
+                      mt-5
+                      rounded-xl
+                      border
+                      border-slate-800
+                      bg-black/10
+                      px-4
+                      py-3
+                    "
+                  >
+                    <p
+                      className="
+                        text-[10px]
+                        uppercase
+                        tracking-[0.13em]
+                        text-slate-600
+                      "
+                    >
+                      Certificate ID
+                    </p>
+
+                    <p
+                      className="
+                        mt-1
+                        text-xs
+                        font-semibold
+                        text-slate-300
+                        break-all
+                      "
+                    >
+                      {latestCertificate.certificate_number}
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div
+                className="
+                  py-3
+                  text-center
+                "
+              >
+                <div
+                  className="
+                    mx-auto
+                    h-14
+                    w-14
+                    rounded-2xl
+                    bg-slate-800/70
+                    text-slate-500
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Award size={24} />
+                </div>
+
+                <h3
+                  className="
+                    mt-4
+                    font-bold
+                    text-white
+                  "
+                >
+                  Your first certificate is waiting
+                </h3>
+
+                <p
+                  className="
+                    mt-2
+                    text-xs
+                    leading-5
+                    text-slate-500
+                  "
+                >
+                  Complete an enrolled course to unlock
+                  your SignSpeak completion certificate.
+                </p>
+              </div>
+            )}
+
+
+            <Link
+              to="/certificates"
+              className="
+                mt-5
+                flex
+                items-center
+                justify-center
+                gap-2
+                rounded-xl
+                border
+                border-emerald-500/20
+                bg-emerald-500/10
+                px-4
+                py-3
+                text-xs
+                font-bold
+                text-emerald-300
+                hover:bg-emerald-500/15
+                transition
+              "
+            >
+              {certificatesEarned
+                ? 'View Certificates'
+                : 'Certificate Center'}
+              <ArrowRight size={14} />
+            </Link>
+
+          </div>
+
+        </div>
+
+      </section>
 
 
       {/* ===================================================

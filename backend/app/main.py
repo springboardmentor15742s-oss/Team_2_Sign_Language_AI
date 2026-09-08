@@ -16,6 +16,8 @@ from app.routers import (
     practice,
     admin,
     ml,
+    certificates,
+    achievements,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -56,6 +58,8 @@ ROUTERS = [
     practice.router,
     admin.router,
     ml.router,
+    certificates.router,
+    achievements.router,
 ]
 
 # Canonical versioned API.

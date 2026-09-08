@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -27,6 +28,9 @@ import { Button } from '../../components/ui/Button';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
 
 import { assessmentService } from '../../services/assessmentService';
+import { CameraPanel } from '../../components/practice/CameraPanel';
+import { ConfidenceMeter } from '../../components/practice/ConfidenceMeter';
+import { mlService } from '../../services/mlService';
 
 
 export default function Assessment() {
@@ -74,6 +78,18 @@ export default function Assessment() {
     submitting,
     setSubmitting,
   ] = useState(false);
+
+  const [
+    gestureAnalyzing,
+    setGestureAnalyzing,
+  ] = useState(false);
+
+  const [
+    gestureResult,
+    setGestureResult,
+  ] = useState(null);
+
+  const gestureCameraRef = useRef(null);
 
 
   /* LOAD ASSESSMENT */
@@ -173,6 +189,10 @@ export default function Assessment() {
   const question =
     questions[current];
 
+  useEffect(() => {
+    setGestureResult(null);
+  }, [current]);
+
 
   const answeredCount =
     Object.keys(
@@ -213,6 +233,88 @@ export default function Assessment() {
         })
       );
     };
+
+
+  const analyzeAssessmentGesture = async () => {
+    try {
+      setGestureAnalyzing(true);
+      setError('');
+
+      if (
+        !gestureCameraRef.current ||
+        !gestureCameraRef.current.isCameraActive() ||
+        !gestureCameraRef.current.isCameraReady()
+      ) {
+        throw new Error(
+          'Start the camera and wait until it is ready.'
+        );
+      }
+
+      const imageFile =
+        await gestureCameraRef.current.captureFrame();
+
+      const response =
+        await mlService.predictSign(imageFile);
+
+      const result =
+        response.data || {};
+
+      const predicted =
+        String(
+          result.predicted_sign || ''
+        ).toUpperCase();
+
+      const confidence =
+        Number(
+          result.confidence || 0
+        );
+
+      if (!predicted) {
+        throw new Error(
+          'The model could not recognize a sign. Please try again.'
+        );
+      }
+
+      /*
+       * Existing assessment answers are stored as:
+       * "Letter A", "Letter C", etc.
+       * The ML model returns "A", "C", etc.
+       */
+      const submittedAnswer =
+        /^[A-Z]$/.test(predicted)
+          ? `Letter ${predicted}`
+          : predicted;
+
+      setAnswers(
+        (previous) => ({
+          ...previous,
+          [String(question.id)]:
+            submittedAnswer,
+        })
+      );
+
+      setGestureResult({
+        predicted,
+        confidence,
+        submittedAnswer,
+      });
+
+    } catch (err) {
+      console.error(
+        'Assessment gesture analysis failed:',
+        err
+      );
+
+      setError(
+        err?.response?.data?.detail ||
+        err?.message ||
+        'Unable to evaluate the gesture.'
+      );
+
+    } finally {
+      setGestureAnalyzing(false);
+    }
+  };
 
 
   const toggleFlag = () => {
@@ -599,73 +701,106 @@ export default function Assessment() {
 
             {question.question_type ===
               'gesture_recognition' && (
-              <div className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.04] p-7">
+              <div className="space-y-5">
 
-                <div className="text-center">
+                <div className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.04] p-5">
 
-                  <Target
-                    size={32}
-                    className="mx-auto text-violet-400"
+                  <div className="flex items-center gap-3 mb-4">
+
+                    <div className="h-10 w-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+                      <Target size={19} />
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-white">
+                        AI Gesture Evaluation
+                      </h3>
+
+                      <p className="text-xs text-slate-500">
+                        Perform the requested sign using your camera.
+                      </p>
+                    </div>
+
+                  </div>
+
+
+                  <CameraPanel
+                    ref={gestureCameraRef}
                   />
 
-                  <h3 className="mt-3 font-bold text-white">
-                    Gesture recognition question
-                  </h3>
 
-                  <p className="mt-2 text-sm text-slate-500">
-                    Select the sign you believe matches the displayed prompt.
-                  </p>
+                  <div className="mt-5">
 
-
-                  {question.options?.length ? (
-                    <div className="mt-5 grid sm:grid-cols-2 gap-3">
-
-                      {question.options.map(
-                        (option) => (
-                          <button
-                            key={option}
-                            onClick={() =>
-                              selectAnswer(
-                                option
-                              )
-                            }
-                            className={`rounded-xl border p-3 text-sm font-semibold ${
-                              answers[
-                                String(
-                                  question.id
-                                )
-                              ] ===
-                              option
-                                ? 'border-violet-500/40 bg-violet-500/10 text-violet-300'
-                                : 'border-slate-800 text-slate-400'
-                            }`}
-                          >
-                            {option}
-                          </button>
-                        )
+                    <Button
+                      className="w-full"
+                      onClick={analyzeAssessmentGesture}
+                      disabled={gestureAnalyzing}
+                    >
+                      {gestureAnalyzing ? (
+                        <>
+                          <Loader2
+                            size={16}
+                            className="animate-spin"
+                          />
+                          Evaluating gesture...
+                        </>
+                      ) : (
+                        <>
+                          <Target size={16} />
+                          Evaluate Gesture
+                        </>
                       )}
+                    </Button>
 
-                    </div>
-                  ) : (
-                    <input
-                      value={
-                        answers[
-                          String(
-                            question.id
-                          )
-                        ] || ''
-                      }
-                      onChange={(event) =>
-                        selectAnswer(
-                          event.target.value
-                        )
-                      }
-                      placeholder="Enter your answer"
-                      className="mt-5 w-full rounded-xl border border-slate-800 bg-[#111827] px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50"
-                    />
-                  )}
+                  </div>
 
                 </div>
+
+
+                {gestureResult && (
+                  <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.04] p-5">
+
+                    <div className="flex items-center justify-between gap-4">
+
+                      <div>
+                        <p className="text-xs uppercase tracking-wider font-bold text-slate-500">
+                          ML Prediction
+                        </p>
+
+                        <p className="mt-1 text-3xl font-bold text-[#20d8d3]">
+                          {gestureResult.predicted}
+                        </p>
+                      </div>
+
+                      <CheckCircle2
+                        size={28}
+                        className="text-emerald-400"
+                      />
+
+                    </div>
+
+
+                    <div className="mt-5">
+
+                      <p className="mb-2 text-xs font-semibold text-slate-500">
+                        Prediction confidence
+                      </p>
+
+                      <ConfidenceMeter
+                        value={gestureResult.confidence}
+                      />
+
+                    </div>
+
+
+                    <p className="mt-4 text-xs leading-5 text-slate-500">
+                      Your detected gesture has been recorded as your answer.
+                      The final correctness is evaluated securely when the
+                      assessment is submitted.
+                    </p>
+
+                  </div>
+                )}
 
               </div>
             )}

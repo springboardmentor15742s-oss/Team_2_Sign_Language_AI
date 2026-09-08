@@ -17,8 +17,8 @@ const learnLinks = [
 const insightLinks = [
   { name: 'Analytics', path: '/reports', icon: BarChart3 },
   { name: 'Reports', path: '/reports', icon: FileText },
-  { name: 'Certificates', path: '/certificates', icon: Award, disabled: true },
-  { name: 'Achievements', path: '/achievements', icon: Trophy, disabled: true },
+  { name: 'Certificates', path: '/certificates', icon: Award },
+  { name: 'Achievements', path: '/achievements', icon: Trophy },
 ];
 
 const accountLinks = [
