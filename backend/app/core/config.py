@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     # CORS
     FRONTEND_ORIGIN: str = "http://localhost:5173"
 
+    # Email / password reset
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "SignSpeak <onboarding@resend.dev>"
+    FRONTEND_RESET_URL: str = "http://localhost:5173/reset-password"
+
     # App
     ENVIRONMENT: str = "development"
     PROJECT_NAME: str = "SignSpeak API"

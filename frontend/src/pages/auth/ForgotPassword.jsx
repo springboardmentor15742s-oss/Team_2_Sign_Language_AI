@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../hooks/useToast';
+import { authService } from '../../services/authService';
 
 export default function ForgotPassword() {
   const [sent, setSent] = useState(false);
@@ -13,11 +14,26 @@ export default function ForgotPassword() {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setSent(true);
-    addToast('Reset link sent to your email', 'success');
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+
+      await authService.forgotPassword(data.email);
+
+      setSent(true);
+
+      addToast(
+        'If the email is registered, a reset link has been sent.',
+        'success'
+      );
+    } catch (error) {
+      addToast(
+        error.response?.data?.detail ||
+          'Unable to send reset link',
+        'error'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
