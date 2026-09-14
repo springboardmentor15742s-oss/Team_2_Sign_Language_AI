@@ -1,0 +1,3 @@
+Model,Validation Accuracy (%),Test Accuracy (%),External Accuracy (%)
+HOG + Linear SVM,91.14,91.09,0.0
+CNN + Data Augmentation,91.62,90.98,0.0
