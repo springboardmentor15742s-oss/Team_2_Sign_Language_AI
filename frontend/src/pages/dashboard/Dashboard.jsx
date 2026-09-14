@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+
 import { Link } from 'react-router-dom';
 
 import {
@@ -6,30 +11,21 @@ import {
   ArrowRight,
   Award,
   BookOpen,
-  BrainCircuit,
   CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
   Flame,
+  CheckCircle2,
+  ClipboardCheck,
+  Clock3,
   Play,
   Sparkles,
-  Target,
-  TrendingUp,
   Video,
-  Zap,
 } from 'lucide-react';
-
-import { Card } from '../../components/ui/Card';
-import { Breadcrumb } from '../../components/layout/Breadcrumb';
 
 import { useAuth } from '../../hooks/useAuth';
 
-import { profileService } from '../../services/profileService';
 import { reportService } from '../../services/reportService';
 import { courseService } from '../../services/courseService';
 import { notificationService } from '../../services/notificationService';
-import { mlService } from '../../services/mlService';
 import certificateService from '../../services/certificateService';
 
 import apiClient from '../../services/apiClient';
@@ -42,40 +38,46 @@ import apiClient from '../../services/apiClient';
 function MetricCard({
   label,
   value,
-  subtext,
+  detail,
   icon: Icon,
   tone = 'cyan',
 }) {
-  const toneMap = {
+  const tones = {
     cyan: {
-      bg: 'bg-cyan-500/10',
-      text: 'text-cyan-400',
+      bg: 'bg-cyan-400/[0.08]',
+      icon: 'text-cyan-300',
     },
-    emerald: {
-      bg: 'bg-emerald-500/10',
-      text: 'text-emerald-400',
+
+    blue: {
+      bg: 'bg-blue-500/[0.08]',
+      icon: 'text-blue-300',
     },
+
     violet: {
-      bg: 'bg-violet-500/10',
-      text: 'text-violet-400',
+      bg: 'bg-violet-500/[0.08]',
+      icon: 'text-violet-300',
     },
+
     amber: {
-      bg: 'bg-amber-500/10',
-      text: 'text-amber-400',
+      bg: 'bg-amber-500/[0.08]',
+      icon: 'text-amber-300',
     },
   };
 
-  const toneStyle =
-    toneMap[tone] || toneMap.cyan;
+  const selected =
+    tones[tone] || tones.cyan;
 
   return (
     <div
       className="
-        rounded-2xl
+        rounded-[22px]
         border
-        border-slate-800
-        bg-[#11161f]
+        border-[var(--ss-border)]
+        bg-[var(--ss-card)]
         p-5
+        transition
+        duration-200
+        hover:border-white/[0.1]
       "
     >
       <div
@@ -83,17 +85,18 @@ function MetricCard({
           flex
           items-start
           justify-between
-          gap-3
+          gap-4
         "
       >
         <div>
+
           <p
             className="
               text-[11px]
-              uppercase
-              tracking-[0.15em]
               font-semibold
-              text-slate-500
+              uppercase
+              tracking-[0.14em]
+              text-[var(--ss-text-muted)]
             "
           >
             {label}
@@ -102,101 +105,43 @@ function MetricCard({
           <p
             className="
               mt-2
-              text-3xl
+              text-[30px]
               font-bold
               tracking-tight
-              text-white
+              text-[var(--ss-text)]
             "
           >
             {value}
           </p>
 
-          {subtext && (
-            <p
-              className="
-                mt-1
-                text-xs
-                text-slate-600
-              "
-            >
-              {subtext}
-            </p>
-          )}
+          <p
+            className="
+              mt-1
+              text-xs
+              text-[var(--ss-text-muted)]
+            "
+          >
+            {detail}
+          </p>
+
         </div>
 
         <div
           className={`
-            h-10
-            w-10
+            h-11
+            w-11
+            shrink-0
             rounded-xl
             flex
             items-center
             justify-center
-            ${toneStyle.bg}
-            ${toneStyle.text}
+            ${selected.bg}
+            ${selected.icon}
           `}
         >
-          <Icon size={18} />
+          <Icon size={19} />
         </div>
-      </div>
-    </div>
-  );
-}
 
-
-function MiniProgress({
-  label,
-  value,
-  suffix = '%',
-}) {
-  const safeValue =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        Number(value || 0)
-      )
-    );
-
-  return (
-    <div>
-      <div
-        className="
-          flex
-          items-center
-          justify-between
-          text-xs
-          mb-2
-        "
-      >
-        <span className="text-slate-500">
-          {label}
-        </span>
-
-        <span className="font-bold text-slate-200">
-          {safeValue}
-          {suffix}
-        </span>
-      </div>
-
-      <div
-        className="
-          h-1.5
-          rounded-full
-          bg-slate-800
-          overflow-hidden
-        "
-      >
-        <div
-          className="
-            h-full
-            rounded-full
-            bg-[#16c8c4]
-          "
-          style={{
-            width: `${safeValue}%`,
-          }}
-        />
       </div>
     </div>
   );
@@ -211,76 +156,71 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   const [data, setData] = useState({
-  learning: null,
-  assessment: null,
-  accuracy: null,
-  progress: null,
-  practice: [],
-  courses: [],
-  enrolled: [],
-  notifications: [],
-  signPerformance: null,
-certificates: [],
-});
-
-  const [
-    learningPlan,
-    setLearningPlan,
-  ] = useState(null);
-
-  const [
-    planLoading,
-    setPlanLoading,
-  ] = useState(true);
+    learning: null,
+    assessment: null,
+    accuracy: null,
+    progress: null,
+    practice: [],
+    courses: [],
+    enrolled: [],
+    notifications: [],
+    certificates: [],
+  });
 
 
   /* =======================================================
-     LOAD DASHBOARD DATA
+     LOAD DATA
   ======================================================= */
 
   useEffect(() => {
     let active = true;
 
     Promise.allSettled([
-  profileService.getProfile(),
-  reportService.getLearningReport(),
-  reportService.getAssessmentReport(),
-  reportService.getAccuracyReport(),
-  reportService.getProgressReport(),
-  apiClient.get('/practice/sessions'),
-  courseService.getCourses({
-    limit: 6,
-  }),
-  courseService.getEnrolled(),
-  notificationService.getNotifications(),
-  reportService.getSignPerformance(),
-  certificateService.getCertificates(),
-]).then((results) => {
+      reportService.getLearningReport(),
+      reportService.getAssessmentReport(),
+      reportService.getAccuracyReport(),
+      reportService.getProgressReport(),
+      apiClient.get('/practice/sessions'),
+      courseService.getCourses({
+        limit: 6,
+      }),
+      courseService.getEnrolled(),
+      notificationService.getNotifications(),
+      certificateService.getCertificates(),
+    ]).then((results) => {
       if (!active) {
         return;
       }
 
       const value = (index) =>
-        results[index].status === 'fulfilled'
-          ? results[index].value.data
+        results[index]?.status === 'fulfilled'
+          ? results[index].value?.data
           : null;
 
+      const certificateResult =
+        results[8]?.status === 'fulfilled'
+          ? results[8].value
+          : [];
+
       setData({
-  learning: value(1),
-  assessment: value(2),
-  accuracy: value(3),
-  progress: value(4),
-  practice: value(5) || [],
-  courses: value(6) || [],
-  enrolled: value(7) || [],
-  notifications: value(8) || [],
-  signPerformance: value(9) || null,
-  certificates:
-    results[10]?.status === 'fulfilled' &&
-    Array.isArray(results[10].value)
-      ? results[10].value
-      : [],
-});
+        learning: value(0),
+        assessment: value(1),
+        accuracy: value(2),
+        progress: value(3),
+        practice: value(4) || [],
+        courses: value(5) || [],
+        enrolled: value(6) || [],
+        notifications: value(7) || [],
+
+        certificates:
+          Array.isArray(certificateResult)
+            ? certificateResult
+            : Array.isArray(
+                certificateResult?.data
+              )
+            ? certificateResult.data
+            : [],
+      });
     });
 
     return () => {
@@ -290,85 +230,286 @@ certificates: [],
 
 
   /* =======================================================
-     PERSONALIZED LEARNING PLAN
+     USER
   ======================================================= */
 
-  useEffect(() => {
-    let active = true;
+  const name =
+    user?.full_name ||
+    user?.name ||
+    'Learner';
 
-    const loadPlan = async () => {
-      try {
-        setPlanLoading(true);
+  const firstName =
+    name.split(' ')[0];
 
-        const currentAccuracy =
-          Number(
-            data.accuracy
-              ?.accuracy_percent || 0
-          );
 
-        const totalAttempts =
-  Number(
-    data.signPerformance
-      ?.total_detection_attempts ||
-    data.accuracy
-      ?.attempts ||
-    0
-  );
+  /* =======================================================
+     METRICS
+  ======================================================= */
 
-        /*
-         * Personalized sign groups derived from
-         * the learner's real practice performance.
-         */
-        const weakSigns =
-  data.signPerformance
-    ?.weak_signs || [];
+  const assessmentAttempts =
+    Number(
+      data.assessment?.attempts || 0
+    );
 
-const strongSigns =
-  data.signPerformance
-    ?.strong_signs || [];
+  const assessmentAverage =
+    Math.round(
+      Number(
+        data.assessment?.average_score || 0
+      )
+    );
 
-        const response =
-          await mlService
-            .generateLearningPlan({
-              accuracy:
-                currentAccuracy,
-              weakSigns,
-              strongSigns,
-              totalAttempts,
-            });
+  const practiceSessions =
+    Number(
+      data.accuracy?.sessions ||
+      data.practice.length ||
+      0
+    );
 
-        if (active) {
-          setLearningPlan(
-            response.data
-              .learning_plan
-          );
-        }
-      } catch (error) {
-        console.error(
-          'Learning plan error:',
-          error
-        );
 
-        if (active) {
-          setLearningPlan(null);
-        }
-      } finally {
-        if (active) {
-          setPlanLoading(false);
+  /* =======================================================
+     PRACTICE STREAK
+  ======================================================= */
+
+  const streakData = useMemo(() => {
+    const sessions =
+      Array.isArray(data.practice)
+        ? data.practice
+        : [];
+
+    const dayKeys = [
+      ...new Set(
+        sessions
+          .map((session) => {
+            const raw =
+              session.started_at ||
+              session.created_at;
+
+            if (!raw) return null;
+
+            const date = new Date(raw);
+
+            return [
+              date.getFullYear(),
+              String(date.getMonth() + 1).padStart(2, '0'),
+              String(date.getDate()).padStart(2, '0'),
+            ].join('-');
+          })
+          .filter(Boolean)
+      ),
+    ].sort();
+
+    const toDate = (key) => {
+      const [year, month, day] =
+        key.split('-').map(Number);
+
+      return new Date(
+        year,
+        month - 1,
+        day
+      );
+    };
+
+    const diffDays = (a, b) =>
+      Math.round(
+        (
+          toDate(b) -
+          toDate(a)
+        ) / 86400000
+      );
+
+    let best = 0;
+    let running = 0;
+    let previous = null;
+
+    dayKeys.forEach((key) => {
+      if (
+        previous &&
+        diffDays(previous, key) === 1
+      ) {
+        running += 1;
+      } else {
+        running = 1;
+      }
+
+      best = Math.max(
+        best,
+        running
+      );
+
+      previous = key;
+    });
+
+    const now = new Date();
+
+    const todayKey = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    const yesterday = new Date(now);
+    yesterday.setDate(
+      yesterday.getDate() - 1
+    );
+
+    const yesterdayKey = [
+      yesterday.getFullYear(),
+      String(yesterday.getMonth() + 1).padStart(2, '0'),
+      String(yesterday.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    let current = 0;
+
+    if (dayKeys.length) {
+      const last =
+        dayKeys[
+          dayKeys.length - 1
+        ];
+
+      if (
+        last === todayKey ||
+        last === yesterdayKey
+      ) {
+        current = 1;
+
+        for (
+          let i = dayKeys.length - 1;
+          i > 0;
+          i -= 1
+        ) {
+          if (
+            diffDays(
+              dayKeys[i - 1],
+              dayKeys[i]
+            ) === 1
+          ) {
+            current += 1;
+          } else {
+            break;
+          }
         }
       }
-    };
+    }
 
-    loadPlan();
+    const lastSevenDays =
+      Array.from(
+        { length: 7 },
+        (_, index) => {
+          const date =
+            new Date();
 
-    return () => {
-      active = false;
+          date.setDate(
+            date.getDate() -
+            (6 - index)
+          );
+
+          const key = [
+            date.getFullYear(),
+            String(
+              date.getMonth() + 1
+            ).padStart(2, '0'),
+            String(
+              date.getDate()
+            ).padStart(2, '0'),
+          ].join('-');
+
+          return {
+            key,
+            label:
+              date.toLocaleDateString(
+                'en-US',
+                {
+                  weekday: 'short',
+                }
+              ).slice(0, 1),
+
+            active:
+              dayKeys.includes(key),
+          };
+        }
+      );
+
+    return {
+      current,
+      best,
+      lastSevenDays,
     };
-  }, [
-    data.accuracy,
-    data.practice,
-    data.signPerformance,
-  ]);
+  }, [data.practice]);
+
+
+  const totalPracticeMinutes =
+    (
+      Array.isArray(data.practice)
+        ? data.practice
+        : []
+    ).reduce(
+      (total, session) =>
+        total +
+        Math.round(
+          Number(
+            session.duration_seconds || 0
+          ) / 60
+        ),
+      0
+    );
+
+
+  const courseProgress =
+    data.learning?.courses?.length
+      ? Math.round(
+          data.learning.courses.reduce(
+            (total, course) =>
+              total +
+              Number(
+                course.progress_percent || 0
+              ),
+            0
+          ) /
+            data.learning.courses.length
+        )
+      : data.enrolled.length
+      ? Math.round(
+          data.enrolled.reduce(
+            (total, item) =>
+              total +
+              Number(
+                item.progress_percent || 0
+              ),
+            0
+          ) /
+            data.enrolled.length
+        )
+      : 0;
+
+
+  const certificateCount =
+    Array.isArray(data.certificates)
+      ? data.certificates.length
+      : 0;
+
+
+  /* =======================================================
+     CONTINUE LEARNING
+  ======================================================= */
+
+  const currentEnrollment =
+    Array.isArray(data.enrolled)
+      ? data.enrolled.find(
+          (item) =>
+            Number(
+              item.progress_percent || 0
+            ) < 100
+        ) || data.enrolled[0]
+      : null;
+
+  const currentCourse =
+    currentEnrollment?.course || null;
+
+  const currentCourseProgress =
+    Number(
+      currentEnrollment?.progress_percent ||
+      0
+    );
 
 
   /* =======================================================
@@ -395,9 +536,7 @@ const strongSigns =
     const now = new Date();
 
     (
-      Array.isArray(
-        data.practice
-      )
+      Array.isArray(data.practice)
         ? data.practice
         : []
     ).forEach((session) => {
@@ -409,8 +548,7 @@ const strongSigns =
         return;
       }
 
-      const date =
-        new Date(raw);
+      const date = new Date(raw);
 
       const diff =
         Math.floor(
@@ -433,19 +571,14 @@ const strongSigns =
         diff < 7
       ) {
         const index =
-          (
-            date.getDay() + 6
-          ) % 7;
+          (date.getDay() + 6) % 7;
 
-        counts[
-          index
-        ].minutes +=
+        counts[index].minutes +=
           Math.max(
             1,
             Math.round(
-              (
-                session
-                  .duration_seconds ||
+              Number(
+                session.duration_seconds ||
                 0
               ) / 60
             )
@@ -457,142 +590,11 @@ const strongSigns =
   }, [data.practice]);
 
 
-  /* =======================================================
-     COMPUTED VALUES
-  ======================================================= */
-
-  const name =
-    user?.full_name ||
-    user?.name ||
-    'Learner';
-
-  const firstName =
-    name.split(' ')[0];
-
-  const accuracy =
-    Math.round(
-      Number(
-        data.accuracy
-          ?.accuracy_percent ||
-        0
-      )
-    );
-
-  const attempts =
-    Number(
-      data.accuracy
-        ?.attempts ||
-      0
-    );
-
-  const sessions =
-    Number(
-      data.accuracy
-        ?.sessions ||
-      data.practice.length ||
-      0
-    );
-
-  const assessmentAttempts =
-    Number(
-      data.assessment
-        ?.attempts ||
-      0
-    );
-
-  const averageAssessment =
-    Number(
-      data.assessment
-        ?.average_score ||
-      0
-    );
-
-  const courseProgress =
-    data.learning
-      ?.courses
-      ?.length
-      ? Math.round(
-          data.learning
-            .courses
-            .reduce(
-              (
-                total,
-                course
-              ) =>
-                total +
-                Number(
-                  course
-                    .progress_percent ||
-                  0
-                ),
-              0
-            ) /
-          data.learning
-            .courses
-            .length
-        )
-      : 0;
-
-  const completedCourses =
-    (
-      Array.isArray(data.enrolled)
-        ? data.enrolled
-        : []
-    ).filter(
-      (entry) =>
-        Number(
-          entry.progress_percent || 0
-        ) >= 100
-    ).length;
-
-  const certificatesEarned =
-    Array.isArray(data.certificates)
-      ? data.certificates.length
-      : 0;
-
-  const latestCertificate =
-    Array.isArray(data.certificates) &&
-    data.certificates.length
-      ? [...data.certificates].sort(
-          (a, b) =>
-            new Date(
-              b.issued_at || 0
-            ) -
-            new Date(
-              a.issued_at || 0
-            )
-        )[0]
-      : null;
-
-  const totalPracticeMinutes =
-    (
-      Array.isArray(
-        data.practice
-      )
-        ? data.practice
-        : []
-    ).reduce(
-      (
-        total,
-        session
-      ) =>
-        total +
-        Math.round(
-          (
-            session
-              .duration_seconds ||
-            0
-          ) / 60
-        ),
-      0
-    );
-
   const maxMinutes =
     Math.max(
-      4,
+      5,
       ...weekly.map(
-        (item) =>
-          item.minutes
+        (item) => item.minutes
       )
     );
 
@@ -602,36 +604,18 @@ const strongSigns =
   ======================================================= */
 
   const recentActivity =
-  (
-    Array.isArray(
-      data.practice
+    (
+      Array.isArray(data.practice)
+        ? data.practice
+        : []
     )
-      ? data.practice
-      : []
-  )
-    .filter(
-      (session) =>
-        Number(session.attempts || 0) > 0
-    )
-    .slice(0, 4)
-    .map((session) => ({
-        id:
-          `practice-${session.id}`,
-        title:
-          session.target_gesture
-            ? `Practiced sign ${session.target_gesture}`
-            : 'AI practice session',
-        meta:
-          `${session.attempts || 0} attempts · ${
-            Math.round(
-              Number(
-                session.average_confidence ||
-                0
-              ) * 100
-            )
-          }% confidence`,
-        icon: Video,
-      }));
+      .filter(
+        (session) =>
+          Number(
+            session.attempts || 0
+          ) > 0
+      )
+      .slice(0, 4);
 
 
   /* =======================================================
@@ -641,38 +625,32 @@ const strongSigns =
   return (
     <div
       className="
-        max-w-[1440px]
+        max-w-[1320px]
         mx-auto
-        space-y-7
+        px-1
+        pb-12
+        space-y-6
       "
     >
 
-      <Breadcrumb
-        items={[
-          {
-            label: 'Dashboard',
-          },
-        ]}
-      />
-
-
       {/* ===================================================
-          HERO
+          WELCOME
       =================================================== */}
 
       <section
         className="
+          ss-dashboard-hero
           relative
           overflow-hidden
-          rounded-[30px]
+          rounded-[28px]
           border
-          border-slate-800
+          border-[var(--ss-border)]
           bg-gradient-to-br
-          from-[#101923]
-          via-[#101721]
-          to-[#17152a]
-          px-6
-          py-7
+          from-[var(--ss-hero-start)]
+          via-[var(--ss-hero-middle)]
+          to-[var(--ss-hero-end)]
+          px-7
+          py-8
           lg:px-9
           lg:py-9
         "
@@ -681,12 +659,12 @@ const strongSigns =
         <div
           className="
             absolute
-            right-[-80px]
-            top-[-110px]
-            h-[320px]
-            w-[320px]
+            -right-16
+            -top-20
+            h-64
+            w-64
             rounded-full
-            bg-cyan-500/10
+            bg-cyan-400/[0.08]
             blur-3xl
           "
         />
@@ -694,12 +672,12 @@ const strongSigns =
         <div
           className="
             absolute
-            left-[45%]
-            bottom-[-170px]
-            h-[300px]
-            w-[300px]
+            right-[20%]
+            -bottom-24
+            h-52
+            w-52
             rounded-full
-            bg-violet-500/10
+            bg-blue-500/[0.09]
             blur-3xl
           "
         />
@@ -708,14 +686,20 @@ const strongSigns =
         <div
           className="
             relative
-            grid
-            lg:grid-cols-[1.4fr_0.6fr]
-            gap-8
-            items-center
+            flex
+            flex-col
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
+            gap-7
           "
         >
 
-          <div>
+          <div
+            className="
+              max-w-2xl
+            "
+          >
 
             <div
               className="
@@ -724,19 +708,19 @@ const strongSigns =
                 gap-2
                 rounded-full
                 border
-                border-cyan-500/20
-                bg-cyan-500/10
+                border-cyan-400/10
+                bg-cyan-400/[0.07]
                 px-3
                 py-1.5
-                text-[11px]
+                text-[10px]
                 font-bold
                 uppercase
-                tracking-[0.14em]
-                text-[#20d8d3]
+                tracking-[0.15em]
+                text-[#45ded8]
               "
             >
-              <BrainCircuit size={13} />
-              SignSpeak Intelligence Active
+              <Sparkles size={13} />
+              SignSpeak Learning Hub
             </div>
 
 
@@ -744,16 +728,24 @@ const strongSigns =
               className="
                 mt-5
                 text-3xl
-                lg:text-[42px]
-                leading-tight
+                lg:text-[38px]
                 font-bold
+                leading-tight
                 tracking-tight
-                text-white
+                text-[var(--ss-text)]
               "
             >
-              Good to see you,
+              Welcome back,
               {' '}
-              <span className="text-[#20d8d3]">
+              <span
+                className="
+                  bg-gradient-to-r
+                  from-[#42ddd8]
+                  to-[#52a4ff]
+                  bg-clip-text
+                  text-transparent
+                "
+              >
                 {firstName}
               </span>
             </h1>
@@ -762,16 +754,15 @@ const strongSigns =
             <p
               className="
                 mt-3
-                max-w-2xl
+                max-w-xl
                 text-sm
-                lg:text-base
-                leading-7
-                text-slate-400
+                leading-6
+                text-[var(--ss-text-soft)]
               "
             >
-              Continue building your signing accuracy with
-              personalized practice, performance insights,
-              and AI-guided learning recommendations.
+              Continue your learning journey,
+              practice consistently, and track
+              your progress in one place.
             </p>
 
 
@@ -785,48 +776,48 @@ const strongSigns =
             >
 
               <Link
-                to="/practice"
-                className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  rounded-xl
-                  bg-[#16c8c4]
-                  px-5
-                  py-3
-                  text-sm
-                  font-bold
-                  text-slate-950
-                  hover:bg-[#20d8d3]
-                  transition
-                "
-              >
-                <Play size={16} />
-                Start AI Practice
-              </Link>
-
-
-              <Link
                 to="/courses"
                 className="
                   inline-flex
                   items-center
                   gap-2
                   rounded-xl
-                  border
-                  border-slate-700
-                  bg-white/[0.03]
+                  bg-[#238cf7]
                   px-5
-                  py-3
+                  py-2.5
                   text-sm
                   font-semibold
-                  text-slate-300
-                  hover:bg-white/[0.06]
+                  text-[var(--ss-text)]
                   transition
+                  hover:bg-[#3298ff]
                 "
               >
-                Explore Courses
-                <ArrowRight size={15} />
+                <BookOpen size={16} />
+                Continue Learning
+              </Link>
+
+
+              <Link
+                to="/practice"
+                className="
+                  inline-flex
+                  items-center
+                  gap-2
+                  rounded-xl
+                  border
+                  border-[var(--ss-border)]
+                  bg-white/[0.04]
+                  px-5
+                  py-2.5
+                  text-sm
+                  font-semibold
+                  text-[var(--ss-text-soft)]
+                  transition
+                  hover:bg-white/[0.07]
+                "
+              >
+                <Play size={16} />
+                Start Practice
               </Link>
 
             </div>
@@ -836,93 +827,39 @@ const strongSigns =
 
           <div
             className="
-              rounded-3xl
+              hidden
+              lg:flex
+              h-36
+              w-36
+              shrink-0
+              items-center
+              justify-center
+              rounded-[32px]
               border
-              border-white/10
+              border-[var(--ss-border)]
               bg-white/[0.04]
-              p-6
-              backdrop-blur
+              shadow-[0_25px_70px_rgba(0,0,0,0.18)]
             "
           >
-
             <div
               className="
+                h-20
+                w-20
+                rounded-[24px]
                 flex
                 items-center
-                justify-between
+                justify-center
+                bg-gradient-to-br
+                from-[#2bd5d0]
+                to-[#2c82f5]
+                shadow-[0_15px_45px_rgba(43,213,208,0.2)]
               "
             >
-              <div>
-                <p
-                  className="
-                    text-[11px]
-                    uppercase
-                    tracking-[0.14em]
-                    font-semibold
-                    text-slate-500
-                  "
-                >
-                  Current Performance
-                </p>
-
-                <p
-                  className="
-                    mt-2
-                    text-5xl
-                    font-bold
-                    tracking-tight
-                    text-white
-                  "
-                >
-                  {accuracy}%
-                </p>
-
-                <p
-                  className="
-                    mt-1
-                    text-xs
-                    text-slate-500
-                  "
-                >
-                  Overall practice accuracy
-                </p>
-              </div>
-
-
-              <div
-                className="
-                  h-16
-                  w-16
-                  rounded-2xl
-                  bg-cyan-500/10
-                  text-[#20d8d3]
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                <TrendingUp size={27} />
-              </div>
-            </div>
-
-
-            <div
-              className="
-                mt-6
-                space-y-4
-              "
-            >
-              <MiniProgress
-                label="Course progress"
-                value={courseProgress}
-              />
-
-              <MiniProgress
-                label="Assessment average"
-                value={averageAssessment}
+              <BookOpen
+                size={34}
+                className="text-[var(--ss-text)]"
               />
             </div>
-
           </div>
 
         </div>
@@ -931,95 +868,97 @@ const strongSigns =
 
 
       {/* ===================================================
-          PERFORMANCE METRICS
+          KEY METRICS
       =================================================== */}
 
-      <div
+      <section
         className="
           grid
           sm:grid-cols-2
-          lg:grid-cols-3
-          xl:grid-cols-6
+          xl:grid-cols-4
           gap-4
         "
       >
 
         <MetricCard
-          label="Practice Accuracy"
-          value={`${accuracy}%`}
-          subtext={`${attempts} total attempts`}
-          icon={Target}
-          tone="cyan"
+          label="Course Progress"
+          value={`${courseProgress}%`}
+          detail={`${data.enrolled.length} enrolled courses`}
+          icon={BookOpen}
+          tone="blue"
         />
 
         <MetricCard
           label="Practice Sessions"
-          value={sessions}
-          subtext={`${totalPracticeMinutes} min total practice`}
+          value={practiceSessions}
+          detail={`${totalPracticeMinutes} min practiced`}
           icon={Activity}
-          tone="emerald"
+          tone="cyan"
         />
 
         <MetricCard
-          label="Assessments"
-          value={assessmentAttempts}
-          subtext={`${Math.round(
-            averageAssessment
-          )}% average score`}
-          icon={Award}
-          tone="violet"
-        />
-
-        <MetricCard
-          label="Course Progress"
-          value={`${courseProgress}%`}
-          subtext={`${data.enrolled.length} enrolled courses`}
-          icon={BookOpen}
+          label="Current Streak"
+          value={`${streakData.current} day${streakData.current === 1 ? '' : 's'}`}
+          detail={`Best streak: ${streakData.best} day${streakData.best === 1 ? '' : 's'}`}
+          icon={Flame}
           tone="amber"
         />
 
-        <MetricCard
-          label="Courses Completed"
-          value={completedCourses}
-          subtext={
-            completedCourses === 1
-              ? '1 learning path completed'
-              : `${completedCourses} learning paths completed`
-          }
-          icon={CheckCircle2}
-          tone="emerald"
-        />
 
         <MetricCard
-          label="Certificates Earned"
-          value={certificatesEarned}
-          subtext={
-            certificatesEarned
-              ? 'Verified SignSpeak credentials'
-              : 'Complete a course to unlock'
+          label="Assessments"
+          value={
+            assessmentAttempts
+              ? `${assessmentAverage}%`
+              : '0'
           }
-          icon={Award}
+          detail={
+            assessmentAttempts
+              ? `${assessmentAttempts} attempts`
+              : 'No attempts yet'
+          }
+          icon={ClipboardCheck}
           tone="violet"
         />
 
-      </div>
+        <MetricCard
+          label="Certificates"
+          value={certificateCount}
+          detail={
+            certificateCount
+              ? 'Certificates earned'
+              : 'Complete a course to unlock'
+          }
+          icon={Award}
+          tone="amber"
+        />
+
+      </section>
 
 
       {/* ===================================================
-          PERFORMANCE + DAILY TARGET
+          CONTINUE LEARNING + PRACTICE
       =================================================== */}
 
-      <div
+      <section
         className="
           grid
-          xl:grid-cols-[1.45fr_0.55fr]
-          gap-6
+          lg:grid-cols-[1.35fr_0.65fr]
+          gap-5
         "
       >
 
-        {/* WEEKLY PERFORMANCE */}
+        {/* CONTINUE LEARNING */}
 
-        <Card padding="large">
+        <div
+          className="
+            rounded-[24px]
+            border
+            border-[var(--ss-border)]
+            bg-[var(--ss-card)]
+            p-6
+          "
+        >
 
           <div
             className="
@@ -1029,14 +968,585 @@ const strongSigns =
               gap-4
             "
           >
+
             <div>
               <p
                 className="
-                  text-[11px]
+                  text-[10px]
                   font-bold
                   uppercase
-                  tracking-[0.14em]
-                  text-[#20d8d3]
+                  tracking-[0.16em]
+                  text-[#38d8d2]
+                "
+              >
+                Continue Learning
+              </p>
+
+              <h2
+                className="
+                  mt-1
+                  text-lg
+                  font-bold
+                  text-[var(--ss-text)]
+                "
+              >
+                Pick up where you left off
+              </h2>
+            </div>
+
+            <BookOpen
+              size={19}
+              className="text-[var(--ss-text-muted)]"
+            />
+
+          </div>
+
+
+          {currentCourse ? (
+            <div
+              className="
+                mt-6
+                rounded-2xl
+                border
+                border-[var(--ss-border)]
+                bg-[var(--ss-surface-2)]
+                p-5
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  flex-col
+                  sm:flex-row
+                  sm:items-center
+                  sm:justify-between
+                  gap-4
+                "
+              >
+
+                <div>
+
+                  <span
+                    className="
+                      inline-flex
+                      rounded-lg
+                      bg-blue-500/[0.08]
+                      px-2.5
+                      py-1
+                      text-[10px]
+                      font-bold
+                      uppercase
+                      tracking-wide
+                      text-blue-300
+                    "
+                  >
+                    {currentCourse.level ||
+                      'Learning'}
+                  </span>
+
+                  <h3
+                    className="
+                      mt-3
+                      text-lg
+                      font-bold
+                      text-[var(--ss-text)]
+                    "
+                  >
+                    {currentCourse.title}
+                  </h3>
+
+                  <p
+                    className="
+                      mt-1
+                      text-xs
+                      text-[var(--ss-text-muted)]
+                    "
+                  >
+                    Continue your current
+                    learning path.
+                  </p>
+
+                </div>
+
+
+                <Link
+                  to={`/courses/${currentCourse.id}`}
+                  className="
+                    inline-flex
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    bg-[#238cf7]
+                    px-4
+                    py-2.5
+                    text-xs
+                    font-semibold
+                    text-[var(--ss-text)]
+                    transition
+                    hover:bg-[#3298ff]
+                  "
+                >
+                  Continue
+                  <ArrowRight size={14} />
+                </Link>
+
+              </div>
+
+
+              <div
+                className="
+                  mt-5
+                "
+              >
+
+                <div
+                  className="
+                    mb-2
+                    flex
+                    items-center
+                    justify-between
+                    text-xs
+                  "
+                >
+                  <span className="text-[var(--ss-text-muted)]">
+                    Course progress
+                  </span>
+
+                  <span
+                    className="
+                      font-bold
+                      text-[var(--ss-text-soft)]
+                    "
+                  >
+                    {Math.round(
+                      currentCourseProgress
+                    )}%
+                  </span>
+                </div>
+
+                <div
+                  className="
+                    h-2
+                    overflow-hidden
+                    rounded-full
+                    bg-slate-800
+                  "
+                >
+                  <div
+                    className="
+                      h-full
+                      rounded-full
+                      bg-gradient-to-r
+                      from-[#26d3cd]
+                      to-[#268cf7]
+                    "
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        currentCourseProgress
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+              </div>
+
+            </div>
+          ) : (
+            <div
+              className="
+                mt-6
+                rounded-2xl
+                border
+                border-dashed
+                border-[var(--ss-border)]
+                bg-white/[0.02]
+                p-7
+                text-center
+              "
+            >
+              <BookOpen
+                size={25}
+                className="
+                  mx-auto
+                  text-[var(--ss-text-muted)]
+                "
+              />
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  font-semibold
+                  text-[var(--ss-text-soft)]
+                "
+              >
+                No active course yet
+              </p>
+
+              <Link
+                to="/courses"
+                className="
+                  mt-3
+                  inline-flex
+                  items-center
+                  gap-1
+                  text-xs
+                  font-semibold
+                  text-[#42ddd8]
+                "
+              >
+                Explore courses
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+          )}
+
+        </div>
+
+
+        {/* PRACTICE */}
+
+        <div
+          className="
+            relative
+            overflow-hidden
+            rounded-[24px]
+            border
+            border-cyan-400/10
+            bg-gradient-to-br
+            from-[var(--ss-practice-start)]
+            to-[var(--ss-practice-end)]
+            p-6
+          "
+        >
+
+          <div
+            className="
+              absolute
+              -right-12
+              -top-12
+              h-36
+              w-36
+              rounded-full
+              bg-cyan-400/[0.08]
+              blur-2xl
+            "
+          />
+
+          <div className="relative">
+
+            <div
+              className="
+                h-11
+                w-11
+                rounded-xl
+                flex
+                items-center
+                justify-center
+                bg-cyan-400/[0.09]
+                text-[#40ded8]
+              "
+            >
+              <Video size={20} />
+            </div>
+
+
+            <p
+              className="
+                mt-5
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.15em]
+                text-[#40ded8]
+              "
+            >
+              Practice
+            </p>
+
+            <h2
+              className="
+                mt-1
+                text-xl
+                font-bold
+                text-[var(--ss-text)]
+              "
+            >
+              Improve through practice
+            </h2>
+
+            <p
+              className="
+                mt-2
+                text-sm
+                leading-6
+                text-[var(--ss-text-muted)]
+              "
+            >
+              Open the practice workspace
+              and continue improving your
+              signing skills.
+            </p>
+
+
+            <Link
+              to="/practice"
+              className="
+                mt-6
+                inline-flex
+                items-center
+                gap-2
+                rounded-xl
+                bg-[#2bd3ce]
+                px-4
+                py-2.5
+                text-xs
+                font-bold
+                text-[#06131a]
+                transition
+                hover:bg-[#3ce0db]
+              "
+            >
+              Start Practice
+              <ArrowRight size={14} />
+            </Link>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      {/* ===================================================
+          PRACTICE STREAK
+      =================================================== */}
+
+      <section
+        className="
+          rounded-2xl
+          border
+          border-[var(--ss-border)]
+          bg-[var(--ss-card)]
+          p-5
+        "
+      >
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+            gap-4
+          "
+        >
+          <div>
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+              "
+            >
+              <Flame
+                size={18}
+                className="text-[var(--ss-copper)]"
+              />
+
+              <h2
+                className="
+                  text-base
+                  font-semibold
+                  text-[var(--ss-text)]
+                "
+              >
+                Practice Streak
+              </h2>
+            </div>
+
+            <p
+              className="
+                mt-1
+                text-xs
+                text-[var(--ss-text-soft)]
+              "
+            >
+              Practice each day to keep your streak going.
+            </p>
+          </div>
+
+
+          <div
+            className="
+              text-left
+              sm:text-right
+            "
+          >
+            <p
+              className="
+                text-2xl
+                font-bold
+                text-[var(--ss-text)]
+              "
+            >
+              {streakData.current}
+            </p>
+
+            <p
+              className="
+                text-[10px]
+                uppercase
+                tracking-wide
+                text-[var(--ss-text-muted)]
+              "
+            >
+              Current streak
+            </p>
+          </div>
+        </div>
+
+
+        <div
+          className="
+            mt-5
+            grid
+            grid-cols-7
+            gap-2
+          "
+        >
+          {streakData.lastSevenDays.map(
+            (day) => (
+              <div
+                key={day.key}
+                className="
+                  flex
+                  flex-col
+                  items-center
+                  gap-2
+                "
+              >
+                <div
+                  className={`
+                    h-9
+                    w-9
+                    rounded-full
+                    flex
+                    items-center
+                    justify-center
+                    border
+                    text-xs
+                    font-semibold
+                    ${
+                      day.active
+                        ? 'bg-[var(--ss-primary)] text-[var(--ss-primary-contrast)] border-[var(--ss-primary)]'
+                        : 'bg-[var(--ss-surface-2)] text-[var(--ss-text-muted)] border-[var(--ss-border)]'
+                    }
+                  `}
+                >
+                  {day.active ? (
+                    <Flame size={14} />
+                  ) : (
+                    day.label
+                  )}
+                </div>
+
+                <span
+                  className="
+                    text-[10px]
+                    text-[var(--ss-text-muted)]
+                  "
+                >
+                  {day.label}
+                </span>
+              </div>
+            )
+          )}
+        </div>
+
+
+        <div
+          className="
+            mt-5
+            flex
+            items-center
+            justify-between
+            rounded-xl
+            bg-[var(--ss-surface-2)]
+            px-4
+            py-3
+          "
+        >
+          <span
+            className="
+              text-xs
+              text-[var(--ss-text-soft)]
+            "
+          >
+            Best streak
+          </span>
+
+          <span
+            className="
+              text-sm
+              font-semibold
+              text-[var(--ss-copper)]
+            "
+          >
+            {streakData.best}
+            {' '}
+            day{streakData.best === 1 ? '' : 's'}
+          </span>
+        </div>
+      </section>
+
+
+      {/* ===================================================
+          WEEKLY ACTIVITY + RECENT ACTIVITY
+      =================================================== */}
+
+      <section
+        className="
+          grid
+          lg:grid-cols-[1.3fr_0.7fr]
+          gap-5
+        "
+      >
+
+        {/* WEEKLY ACTIVITY */}
+
+        <div
+          className="
+            rounded-[24px]
+            border
+            border-[var(--ss-border)]
+            bg-[var(--ss-card)]
+            p-6
+          "
+        >
+
+          <div
+            className="
+              flex
+              items-start
+              justify-between
+              gap-4
+            "
+          >
+
+            <div>
+
+              <p
+                className="
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[#38d8d2]
                 "
               >
                 Weekly Activity
@@ -1045,45 +1555,38 @@ const strongSigns =
               <h2
                 className="
                   mt-1
-                  text-xl
+                  text-lg
                   font-bold
-                  text-white
+                  text-[var(--ss-text)]
                 "
               >
                 Practice consistency
               </h2>
 
-              <p
-                className="
-                  mt-1
-                  text-xs
-                  text-slate-500
-                "
-              >
-                Minutes practiced during the current week
-              </p>
             </div>
 
             <CalendarDays
-              size={19}
-              className="text-slate-600"
+              size={18}
+              className="text-[var(--ss-text-muted)]"
             />
+
           </div>
 
 
           <div
             className="
-              mt-8
-              h-[230px]
+              mt-7
+              h-[190px]
               flex
               items-end
               gap-3
             "
           >
+
             {weekly.map((item) => {
               const height =
                 Math.max(
-                  7,
+                  5,
                   (
                     item.minutes /
                     maxMinutes
@@ -1098,16 +1601,17 @@ const strongSigns =
                     h-full
                     flex
                     flex-col
-                    justify-end
                     items-center
+                    justify-end
                     gap-2
                   "
                 >
+
                   <span
                     className="
-                      text-[10px]
-                      font-semibold
-                      text-slate-500
+                      text-[9px]
+                      font-medium
+                      text-[var(--ss-text-muted)]
                     "
                   >
                     {item.minutes}m
@@ -1116,13 +1620,13 @@ const strongSigns =
                   <div
                     className="
                       w-full
-                      max-w-[58px]
-                      h-[170px]
+                      max-w-[46px]
+                      h-[135px]
                       rounded-xl
-                      bg-slate-900
-                      overflow-hidden
+                      bg-[var(--ss-surface-2)]
                       flex
                       items-end
+                      overflow-hidden
                     "
                   >
                     <div
@@ -1130,8 +1634,8 @@ const strongSigns =
                         w-full
                         rounded-xl
                         bg-gradient-to-t
-                        from-[#16c8c4]
-                        to-cyan-300
+                        from-[#278df6]
+                        to-[#2dd5cf]
                       "
                       style={{
                         height:
@@ -1142,1445 +1646,51 @@ const strongSigns =
 
                   <span
                     className="
-                      text-xs
-                      text-slate-500
+                      text-[10px]
+                      text-[var(--ss-text-muted)]
                     "
                   >
                     {item.day}
                   </span>
+
                 </div>
               );
             })}
-          </div>
-
-        </Card>
-
-
-        {/* DAILY GOAL */}
-
-        <Card
-          padding="large"
-          className="
-            bg-gradient-to-br
-            from-[#141728]
-            to-[#11161f]
-          "
-        >
-
-          <div
-            className="
-              flex
-              items-center
-              gap-3
-            "
-          >
-            <div
-              className="
-                h-11
-                w-11
-                rounded-xl
-                bg-violet-500/10
-                text-violet-400
-                flex
-                items-center
-                justify-center
-              "
-            >
-              <Flame size={20} />
-            </div>
-
-            <div>
-              <p
-                className="
-                  text-[11px]
-                  uppercase
-                  tracking-[0.14em]
-                  font-bold
-                  text-violet-400
-                "
-              >
-                Today's Goal
-              </p>
-
-              <h3
-                className="
-                  mt-1
-                  font-bold
-                  text-white
-                "
-              >
-                Build consistency
-              </h3>
-            </div>
-          </div>
-
-
-          <div
-            className="
-              mt-7
-              flex
-              items-center
-              justify-center
-            "
-          >
-            <div
-              className="
-                h-36
-                w-36
-                rounded-full
-                border-[10px]
-                border-slate-800
-                flex
-                flex-col
-                items-center
-                justify-center
-              "
-            >
-              <span
-                className="
-                  text-3xl
-                  font-bold
-                  text-white
-                "
-              >
-                {Math.min(
-                  totalPracticeMinutes,
-                  20
-                )}
-              </span>
-
-              <span
-                className="
-                  mt-1
-                  text-xs
-                  text-slate-500
-                "
-              >
-                / 20 min
-              </span>
-            </div>
-          </div>
-
-
-          <p
-            className="
-              mt-5
-              text-center
-              text-xs
-              leading-5
-              text-slate-500
-            "
-          >
-            Complete your daily practice goal to improve
-            recognition consistency.
-          </p>
-
-
-          <Link
-            to="/practice"
-            className="
-              mt-5
-              flex
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-violet-500/10
-              border
-              border-violet-500/20
-              px-4
-              py-2.5
-              text-xs
-              font-bold
-              text-violet-300
-              hover:bg-violet-500/15
-              transition
-            "
-          >
-            Continue Practice
-            <ArrowRight size={14} />
-          </Link>
-
-        </Card>
-
-      </div>
-
-
-      {/* ===================================================
-          COMPLETION + CERTIFICATION
-      =================================================== */}
-
-      <section
-        className="
-          relative
-          overflow-hidden
-          rounded-[28px]
-          border
-          border-emerald-500/20
-          bg-gradient-to-br
-          from-[#101a1b]
-          via-[#111820]
-          to-[#151628]
-          p-6
-          lg:p-8
-        "
-      >
-
-        <div
-          className="
-            absolute
-            right-[-100px]
-            top-[-130px]
-            h-[280px]
-            w-[280px]
-            rounded-full
-            bg-emerald-500/10
-            blur-3xl
-          "
-        />
-
-        <div
-          className="
-            relative
-            grid
-            lg:grid-cols-[1.15fr_0.85fr]
-            gap-7
-            items-center
-          "
-        >
-
-          <div>
-
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-2
-                text-[11px]
-                font-bold
-                uppercase
-                tracking-[0.15em]
-                text-emerald-400
-              "
-            >
-              <Award size={14} />
-              Learning Achievement
-            </div>
-
-            <h2
-              className="
-                mt-2
-                text-2xl
-                lg:text-3xl
-                font-bold
-                tracking-tight
-                text-white
-              "
-            >
-              Completion & Certification
-            </h2>
-
-            <p
-              className="
-                mt-2
-                max-w-2xl
-                text-sm
-                leading-6
-                text-slate-500
-              "
-            >
-              Track completed learning paths and access
-              certificates earned through SignSpeak.
-            </p>
-
-
-            <div
-              className="
-                mt-6
-                grid
-                sm:grid-cols-2
-                gap-3
-              "
-            >
-
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-slate-800
-                  bg-black/10
-                  p-4
-                "
-              >
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-3
-                  "
-                >
-                  <div
-                    className="
-                      h-10
-                      w-10
-                      rounded-xl
-                      bg-emerald-500/10
-                      text-emerald-400
-                      flex
-                      items-center
-                      justify-center
-                    "
-                  >
-                    <CheckCircle2 size={18} />
-                  </div>
-
-                  <div>
-                    <p
-                      className="
-                        text-2xl
-                        font-bold
-                        text-white
-                      "
-                    >
-                      {completedCourses}
-                    </p>
-
-                    <p
-                      className="
-                        text-xs
-                        text-slate-500
-                      "
-                    >
-                      Courses completed
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-slate-800
-                  bg-black/10
-                  p-4
-                "
-              >
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-3
-                  "
-                >
-                  <div
-                    className="
-                      h-10
-                      w-10
-                      rounded-xl
-                      bg-violet-500/10
-                      text-violet-400
-                      flex
-                      items-center
-                      justify-center
-                    "
-                  >
-                    <Award size={18} />
-                  </div>
-
-                  <div>
-                    <p
-                      className="
-                        text-2xl
-                        font-bold
-                        text-white
-                      "
-                    >
-                      {certificatesEarned}
-                    </p>
-
-                    <p
-                      className="
-                        text-xs
-                        text-slate-500
-                      "
-                    >
-                      Certificates earned
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div
-            className="
-              rounded-3xl
-              border
-              border-white/10
-              bg-white/[0.035]
-              p-5
-              lg:p-6
-            "
-          >
-
-            {latestCertificate ? (
-              <>
-                <div
-                  className="
-                    flex
-                    items-start
-                    justify-between
-                    gap-4
-                  "
-                >
-                  <div>
-                    <p
-                      className="
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-[0.14em]
-                        text-slate-500
-                      "
-                    >
-                      Latest Credential
-                    </p>
-
-                    <h3
-                      className="
-                        mt-2
-                        text-lg
-                        font-bold
-                        leading-6
-                        text-white
-                      "
-                    >
-                      {latestCertificate.title}
-                    </h3>
-
-                    <p
-                      className="
-                        mt-2
-                        text-xs
-                        text-slate-500
-                      "
-                    >
-                      Issued{' '}
-                      {latestCertificate.issued_at
-                        ? new Date(
-                            latestCertificate.issued_at
-                          ).toLocaleDateString(
-                            'en-IN',
-                            {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                            }
-                          )
-                        : 'recently'}
-                    </p>
-                  </div>
-
-                  <div
-                    className="
-                      h-12
-                      w-12
-                      shrink-0
-                      rounded-2xl
-                      bg-emerald-500/10
-                      text-emerald-400
-                      flex
-                      items-center
-                      justify-center
-                    "
-                  >
-                    <Award size={22} />
-                  </div>
-                </div>
-
-                {latestCertificate.certificate_number && (
-                  <div
-                    className="
-                      mt-5
-                      rounded-xl
-                      border
-                      border-slate-800
-                      bg-black/10
-                      px-4
-                      py-3
-                    "
-                  >
-                    <p
-                      className="
-                        text-[10px]
-                        uppercase
-                        tracking-[0.13em]
-                        text-slate-600
-                      "
-                    >
-                      Certificate ID
-                    </p>
-
-                    <p
-                      className="
-                        mt-1
-                        text-xs
-                        font-semibold
-                        text-slate-300
-                        break-all
-                      "
-                    >
-                      {latestCertificate.certificate_number}
-                    </p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div
-                className="
-                  py-3
-                  text-center
-                "
-              >
-                <div
-                  className="
-                    mx-auto
-                    h-14
-                    w-14
-                    rounded-2xl
-                    bg-slate-800/70
-                    text-slate-500
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <Award size={24} />
-                </div>
-
-                <h3
-                  className="
-                    mt-4
-                    font-bold
-                    text-white
-                  "
-                >
-                  Your first certificate is waiting
-                </h3>
-
-                <p
-                  className="
-                    mt-2
-                    text-xs
-                    leading-5
-                    text-slate-500
-                  "
-                >
-                  Complete an enrolled course to unlock
-                  your SignSpeak completion certificate.
-                </p>
-              </div>
-            )}
-
-
-            <Link
-              to="/certificates"
-              className="
-                mt-5
-                flex
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                border
-                border-emerald-500/20
-                bg-emerald-500/10
-                px-4
-                py-3
-                text-xs
-                font-bold
-                text-emerald-300
-                hover:bg-emerald-500/15
-                transition
-              "
-            >
-              {certificatesEarned
-                ? 'View Certificates'
-                : 'Certificate Center'}
-              <ArrowRight size={14} />
-            </Link>
 
           </div>
 
         </div>
-
-      </section>
-
-
-      {/* ===================================================
-          SIGNSPEAK INTELLIGENCE
-      =================================================== */}
-
-      <section
-        className="
-          relative
-          overflow-hidden
-          rounded-[28px]
-          border
-          border-violet-500/20
-          bg-gradient-to-br
-          from-[#151427]
-          via-[#121622]
-          to-[#0f171d]
-          p-6
-          lg:p-8
-        "
-      >
-
-        <div
-          className="
-            absolute
-            right-[-90px]
-            top-[-120px]
-            h-[260px]
-            w-[260px]
-            rounded-full
-            bg-violet-500/10
-            blur-3xl
-          "
-        />
-
-
-        <div
-          className="
-            relative
-          "
-        >
-
-          <div
-            className="
-              flex
-              flex-col
-              lg:flex-row
-              lg:items-start
-              lg:justify-between
-              gap-5
-            "
-          >
-
-            <div>
-              <div
-                className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  text-[11px]
-                  font-bold
-                  uppercase
-                  tracking-[0.15em]
-                  text-violet-400
-                "
-              >
-                <Sparkles size={14} />
-                SignSpeak Intelligence
-              </div>
-
-              <h2
-                className="
-                  mt-2
-                  text-2xl
-                  lg:text-3xl
-                  font-bold
-                  text-white
-                "
-              >
-                Your personalized learning direction
-              </h2>
-
-              <p
-                className="
-                  mt-2
-                  max-w-3xl
-                  text-sm
-                  leading-6
-                  text-slate-500
-                "
-              >
-                AI recommendations generated from learner
-                performance and practice behavior.
-              </p>
-            </div>
-
-
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-full
-                border
-                border-emerald-500/20
-                bg-emerald-500/10
-                px-3
-                py-1.5
-                text-[11px]
-                font-bold
-                text-emerald-400
-              "
-            >
-              <span
-                className="
-                  h-1.5
-                  w-1.5
-                  rounded-full
-                  bg-emerald-400
-                "
-              />
-              AI Engine Active
-            </div>
-
-          </div>
-
-
-          {planLoading ? (
-            <div
-              className="
-                mt-8
-                rounded-2xl
-                border
-                border-slate-800
-                p-8
-                text-center
-                text-sm
-                text-slate-500
-              "
-            >
-              Generating your learning intelligence...
-            </div>
-          ) : learningPlan ? (
-            <>
-              <div
-                className="
-                  mt-7
-                  rounded-2xl
-                  border
-                  border-violet-500/15
-                  bg-violet-500/[0.04]
-                  p-5
-                "
-              >
-                <p
-                  className="
-                    text-[11px]
-                    uppercase
-                    tracking-[0.14em]
-                    font-bold
-                    text-violet-400
-                  "
-                >
-                  AI Recommended Focus
-                </p>
-
-                <p
-                  className="
-                    mt-2
-                    text-lg
-                    font-semibold
-                    text-slate-200
-                  "
-                >
-                  {
-                    learningPlan.focus
-                  }
-                </p>
-
-                <p
-                  className="
-                    mt-2
-                    max-w-4xl
-                    text-sm
-                    leading-6
-                    text-slate-500
-                  "
-                >
-                  {
-                    learningPlan
-                      .recommendation
-                  }
-                </p>
-              </div>
-
-
-              <div
-                className="
-                  mt-6
-                  grid
-                  lg:grid-cols-3
-                  gap-4
-                "
-              >
-
-                <div
-                  className="
-                    rounded-2xl
-                    border
-                    border-amber-500/15
-                    bg-amber-500/[0.03]
-                    p-5
-                  "
-                >
-                  <p
-                    className="
-                      text-[11px]
-                      uppercase
-                      tracking-[0.14em]
-                      font-bold
-                      text-amber-400
-                    "
-                  >
-                    Priority Signs
-                  </p>
-
-                  <div
-                    className="
-                      mt-4
-                      flex
-                      flex-wrap
-                      gap-2
-                    "
-                  >
-                    {learningPlan
-                      .priority_signs
-                      ?.map((sign) => (
-                        <span
-                          key={sign}
-                          className="
-                            min-w-9
-                            rounded-lg
-                            border
-                            border-amber-500/20
-                            bg-amber-500/10
-                            px-3
-                            py-2
-                            text-center
-                            text-sm
-                            font-bold
-                            text-amber-300
-                          "
-                        >
-                          {sign}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-
-
-                <div
-                  className="
-                    rounded-2xl
-                    border
-                    border-cyan-500/15
-                    bg-cyan-500/[0.03]
-                    p-5
-                  "
-                >
-                  <p
-                    className="
-                      text-[11px]
-                      uppercase
-                      tracking-[0.14em]
-                      font-bold
-                      text-cyan-400
-                    "
-                  >
-                    Strong Signs
-                  </p>
-
-                  <div
-                    className="
-                      mt-4
-                      flex
-                      flex-wrap
-                      gap-2
-                    "
-                  >
-                    {learningPlan
-                      .strong_signs
-                      ?.map((sign) => (
-                        <span
-                          key={sign}
-                          className="
-                            min-w-9
-                            rounded-lg
-                            border
-                            border-cyan-500/20
-                            bg-cyan-500/10
-                            px-3
-                            py-2
-                            text-center
-                            text-sm
-                            font-bold
-                            text-cyan-300
-                          "
-                        >
-                          {sign}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-
-
-                <div
-                  className="
-                    rounded-2xl
-                    border
-                    border-slate-800
-                    bg-white/[0.02]
-                    p-5
-                  "
-                >
-                  <p
-                    className="
-                      text-[11px]
-                      uppercase
-                      tracking-[0.14em]
-                      font-bold
-                      text-slate-500
-                    "
-                  >
-                    Next Target
-                  </p>
-
-                  <p
-                    className="
-                      mt-3
-                      text-4xl
-                      font-bold
-                      text-white
-                    "
-                  >
-                    {
-                      learningPlan
-                        .target_accuracy
-                    }%
-                  </p>
-
-                  <p
-                    className="
-                      mt-1
-                      text-xs
-                      text-slate-600
-                    "
-                  >
-                    AI recommended target accuracy
-                  </p>
-                </div>
-
-              </div>
-
-
-              {learningPlan
-                .session_plan
-                ?.length > 0 && (
-                <div
-                  className="
-                    mt-6
-                  "
-                >
-
-                  <div
-                    className="
-                      flex
-                      items-center
-                      justify-between
-                    "
-                  >
-                    <div>
-                      <p
-                        className="
-                          text-[11px]
-                          uppercase
-                          tracking-[0.14em]
-                          font-bold
-                          text-[#20d8d3]
-                        "
-                      >
-                        Today's Practice Flow
-                      </p>
-
-                      <p
-                        className="
-                          mt-1
-                          text-xs
-                          text-slate-600
-                        "
-                      >
-                        Your AI-generated session plan
-                      </p>
-                    </div>
-
-                    <Clock3
-                      size={17}
-                      className="text-slate-600"
-                    />
-                  </div>
-
-
-                  <div
-                    className="
-                      mt-4
-                      grid
-                      md:grid-cols-3
-                      gap-3
-                    "
-                  >
-                    {learningPlan
-                      .session_plan
-                      .map(
-                        (
-                          activity,
-                          index
-                        ) => (
-                          <div
-                            key={
-                              activity
-                                .activity
-                            }
-                            className="
-                              relative
-                              rounded-2xl
-                              border
-                              border-slate-800
-                              bg-[#111827]
-                              p-5
-                            "
-                          >
-                            <div
-                              className="
-                                flex
-                                items-center
-                                justify-between
-                              "
-                            >
-                              <div
-                                className="
-                                  h-8
-                                  w-8
-                                  rounded-lg
-                                  bg-[#0d3b3c]
-                                  text-[#20d8d3]
-                                  flex
-                                  items-center
-                                  justify-center
-                                  text-xs
-                                  font-bold
-                                "
-                              >
-                                {index + 1}
-                              </div>
-
-                              <span
-                                className="
-                                  text-xs
-                                  font-bold
-                                  text-[#20d8d3]
-                                "
-                              >
-                                {
-                                  activity
-                                    .duration_minutes
-                                } min
-                              </span>
-                            </div>
-
-                            <p
-                              className="
-                                mt-4
-                                text-sm
-                                font-bold
-                                text-slate-200
-                              "
-                            >
-                              {
-                                activity
-                                  .activity
-                              }
-                            </p>
-
-                            <p
-                              className="
-                                mt-1
-                                text-xs
-                                leading-5
-                                text-slate-500
-                              "
-                            >
-                              {
-                                activity
-                                  .task
-                              }
-                            </p>
-                          </div>
-                        )
-                      )}
-                  </div>
-
-
-                  <div
-                    className="
-                      mt-5
-                      flex
-                      justify-end
-                    "
-                  >
-                    <Link
-                      to="/practice"
-                      className="
-                        inline-flex
-                        items-center
-                        gap-2
-                        rounded-xl
-                        bg-[#16c8c4]
-                        px-5
-                        py-2.5
-                        text-xs
-                        font-bold
-                        text-slate-950
-                        hover:bg-[#20d8d3]
-                        transition
-                      "
-                    >
-                      Start Personalized Session
-                      <ArrowRight size={14} />
-                    </Link>
-                  </div>
-
-                </div>
-              )}
-            </>
-          ) : (
-            <div
-              className="
-                mt-7
-                rounded-2xl
-                border
-                border-dashed
-                border-slate-800
-                p-8
-                text-center
-              "
-            >
-              <Sparkles
-                size={28}
-                className="
-                  mx-auto
-                  text-slate-700
-                "
-              />
-
-              <p
-                className="
-                  mt-3
-                  text-sm
-                  text-slate-400
-                "
-              >
-                Complete practice sessions to unlock
-                personalized AI recommendations.
-              </p>
-            </div>
-          )}
-
-        </div>
-
-      </section>
-
-
-      {/* ===================================================
-          LEARNING + ACTIVITY
-      =================================================== */}
-
-      <div
-        className="
-          grid
-          xl:grid-cols-[1.35fr_0.65fr]
-          gap-6
-        "
-      >
-
-        {/* ENROLLED COURSES */}
-
-        <Card padding="large">
-
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-            "
-          >
-            <div>
-              <p
-                className="
-                  text-[11px]
-                  uppercase
-                  tracking-[0.14em]
-                  font-bold
-                  text-[#20d8d3]
-                "
-              >
-                Learning Progress
-              </p>
-
-              <h2
-                className="
-                  mt-1
-                  text-xl
-                  font-bold
-                  text-white
-                "
-              >
-                Continue learning
-              </h2>
-            </div>
-
-            <Link
-              to="/courses"
-              className="
-                inline-flex
-                items-center
-                gap-1
-                text-xs
-                font-semibold
-                text-[#20d8d3]
-              "
-            >
-              View all
-              <ChevronRight size={14} />
-            </Link>
-          </div>
-
-
-          {data.enrolled.length ? (
-            <div
-              className="
-                mt-6
-                space-y-3
-              "
-            >
-              {data.enrolled
-                .slice(0, 3)
-                .map((entry) => {
-                  const course =
-                    entry.course;
-
-                  return (
-                    <Link
-                      key={
-                        entry
-                          .enrollment_id
-                      }
-                      to={`/course/${course.id}`}
-                      className="
-                        group
-                        block
-                        rounded-2xl
-                        border
-                        border-slate-800
-                        bg-[#111827]
-                        p-4
-                        hover:border-slate-700
-                        transition
-                      "
-                    >
-                      <div
-                        className="
-                          flex
-                          items-center
-                          gap-4
-                        "
-                      >
-                        <div
-                          className="
-                            h-12
-                            w-12
-                            rounded-xl
-                            bg-cyan-500/10
-                            text-cyan-400
-                            flex
-                            items-center
-                            justify-center
-                          "
-                        >
-                          <BookOpen size={20} />
-                        </div>
-
-                        <div
-                          className="
-                            flex-1
-                            min-w-0
-                          "
-                        >
-                          <div
-                            className="
-                              flex
-                              items-center
-                              justify-between
-                              gap-4
-                            "
-                          >
-                            <div>
-                              <p
-                                className="
-                                  text-sm
-                                  font-bold
-                                  text-slate-200
-                                  truncate
-                                "
-                              >
-                                {
-                                  course.title
-                                }
-                              </p>
-
-                              <p
-                                className="
-                                  mt-0.5
-                                  text-xs
-                                  text-slate-600
-                                "
-                              >
-                                {
-                                  course.level ||
-                                  'Beginner'
-                                }
-                              </p>
-                            </div>
-
-                            <span
-                              className="
-                                text-xs
-                                font-bold
-                                text-[#20d8d3]
-                              "
-                            >
-                              {
-                                entry
-                                  .progress_percent
-                              }%
-                            </span>
-                          </div>
-
-                          <div
-                            className="
-                              mt-3
-                              h-1.5
-                              rounded-full
-                              bg-slate-800
-                              overflow-hidden
-                            "
-                          >
-                            <div
-                              className="
-                                h-full
-                                rounded-full
-                                bg-[#16c8c4]
-                              "
-                              style={{
-                                width:
-                                  `${
-                                    entry
-                                      .progress_percent
-                                  }%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        <ChevronRight
-                          size={16}
-                          className="
-                            text-slate-700
-                            group-hover:text-slate-500
-                          "
-                        />
-                      </div>
-                    </Link>
-                  );
-                })}
-            </div>
-          ) : (
-            <div
-              className="
-                mt-6
-                rounded-2xl
-                border
-                border-dashed
-                border-slate-800
-                p-8
-                text-center
-              "
-            >
-              <BookOpen
-                size={28}
-                className="
-                  mx-auto
-                  text-slate-700
-                "
-              />
-
-              <p
-                className="
-                  mt-3
-                  text-sm
-                  text-slate-400
-                "
-              >
-                You haven't enrolled in a course yet.
-              </p>
-
-              <Link
-                to="/courses"
-                className="
-                  mt-3
-                  inline-flex
-                  text-xs
-                  font-semibold
-                  text-[#20d8d3]
-                "
-              >
-                Explore courses
-              </Link>
-            </div>
-          )}
-
-        </Card>
 
 
         {/* RECENT ACTIVITY */}
 
-        <Card padding="large">
+        <div
+          className="
+            rounded-[24px]
+            border
+            border-[var(--ss-border)]
+            bg-[var(--ss-card)]
+            p-6
+          "
+        >
 
           <div
             className="
               flex
-              items-center
+              items-start
               justify-between
             "
           >
+
             <div>
+
               <p
                 className="
-                  text-[11px]
-                  uppercase
-                  tracking-[0.14em]
+                  text-[10px]
                   font-bold
-                  text-violet-400
+                  uppercase
+                  tracking-[0.16em]
+                  text-[#38d8d2]
                 "
               >
                 Recent Activity
@@ -2589,311 +1699,145 @@ const strongSigns =
               <h2
                 className="
                   mt-1
-                  text-xl
+                  text-lg
                   font-bold
-                  text-white
+                  text-[var(--ss-text)]
                 "
               >
-                Learning timeline
+                Your latest sessions
               </h2>
+
             </div>
 
-            <Activity
+            <Clock3
               size={18}
-              className="text-slate-600"
+              className="text-[var(--ss-text-muted)]"
             />
+
           </div>
 
 
-          {recentActivity.length ? (
-            <div
-              className="
-                mt-6
-                space-y-4
-              "
-            >
-              {recentActivity.map(
-                (item) => {
-                  const Icon =
-                    item.icon;
+          <div
+            className="
+              mt-6
+              space-y-3
+            "
+          >
 
-                  return (
+            {recentActivity.length ? (
+              recentActivity.map(
+                (session) => (
+                  <div
+                    key={session.id}
+                    className="
+                      flex
+                      items-center
+                      gap-3
+                      rounded-xl
+                      border
+                      border-[var(--ss-border)]
+                      bg-[var(--ss-surface-2)]
+                      p-3.5
+                    "
+                  >
+
                     <div
-                      key={item.id}
                       className="
+                        h-9
+                        w-9
+                        shrink-0
+                        rounded-lg
                         flex
-                        items-start
-                        gap-3
+                        items-center
+                        justify-center
+                        bg-cyan-400/[0.07]
+                        text-[#3bd8d2]
                       "
                     >
-                      <div
+                      <Video size={16} />
+                    </div>
+
+                    <div
+                      className="
+                        min-w-0
+                        flex-1
+                      "
+                    >
+                      <p
                         className="
-                          h-8
-                          w-8
-                          rounded-lg
-                          bg-emerald-500/10
-                          text-emerald-400
-                          flex
-                          items-center
-                          justify-center
-                          shrink-0
+                          truncate
+                          text-xs
+                          font-semibold
+                          text-[var(--ss-text-soft)]
                         "
                       >
-                        <Icon size={14} />
-                      </div>
+                        {session.target_gesture
+                          ? `Practiced ${session.target_gesture}`
+                          : 'Practice session'}
+                      </p>
 
-                      <div>
-                        <p
-                          className="
-                            text-sm
-                            font-semibold
-                            text-slate-300
-                          "
-                        >
-                          {item.title}
-                        </p>
-
-                        <p
-                          className="
-                            mt-0.5
-                            text-xs
-                            leading-5
-                            text-slate-600
-                          "
-                        >
-                          {item.meta}
-                        </p>
-                      </div>
+                      <p
+                        className="
+                          mt-0.5
+                          text-[10px]
+                          text-[var(--ss-text-muted)]
+                        "
+                      >
+                        {Number(
+                          session.attempts ||
+                          0
+                        )}{' '}
+                        attempts
+                      </p>
                     </div>
-                  );
-                }
-              )}
-            </div>
-          ) : (
-            <div
-              className="
-                mt-6
-                rounded-2xl
-                border
-                border-dashed
-                border-slate-800
-                p-7
-                text-center
-              "
-            >
-              <Activity
-                size={26}
+
+                    <CheckCircle2
+                      size={15}
+                      className="text-[var(--ss-text-muted)]"
+                    />
+
+                  </div>
+                )
+              )
+            ) : (
+              <div
                 className="
-                  mx-auto
-                  text-slate-700
-                "
-              />
-
-              <p
-                className="
-                  mt-3
-                  text-sm
-                  text-slate-400
-                "
-              >
-                Your recent practice activity will appear here.
-              </p>
-            </div>
-          )}
-
-        </Card>
-
-      </div>
-
-
-      {/* ===================================================
-          NEXT STEPS
-      =================================================== */}
-
-      <Card padding="large">
-
-        <div>
-          <p
-            className="
-              text-[11px]
-              uppercase
-              tracking-[0.14em]
-              font-bold
-              text-[#20d8d3]
-            "
-          >
-            Continue Your Journey
-          </p>
-
-          <h2
-            className="
-              mt-1
-              text-xl
-              font-bold
-              text-white
-            "
-          >
-            Recommended next actions
-          </h2>
-        </div>
-
-
-        <div
-          className="
-            mt-6
-            grid
-            sm:grid-cols-2
-            xl:grid-cols-4
-            gap-3
-          "
-        >
-
-          {[
-            {
-              title:
-                'AI Practice',
-              text:
-                'Practice target signs with real-time ML feedback.',
-              path:
-                '/practice',
-              icon:
-                Video,
-            },
-            {
-              title:
-                'Continue Course',
-              text:
-                'Progress through your structured learning path.',
-              path:
-                '/courses',
-              icon:
-                BookOpen,
-            },
-            {
-              title:
-                'Assessment',
-              text:
-                'Measure your current recognition performance.',
-              path:
-                '/assessments',
-              icon:
-                Target,
-            },
-            {
-              title:
-                'Review Progress',
-              text:
-                'Explore analytics and improvement insights.',
-              path:
-                '/reports',
-              icon:
-                TrendingUp,
-            },
-          ].map(
-            ({
-              title,
-              text,
-              path,
-              icon: Icon,
-            }) => (
-              <Link
-                key={title}
-                to={path}
-                className="
-                  group
-                  rounded-2xl
+                  rounded-xl
                   border
-                  border-slate-800
-                  bg-[#111827]
-                  p-5
-                  hover:border-slate-700
-                  transition
+                  border-dashed
+                  border-[var(--ss-border)]
+                  p-6
+                  text-center
                 "
               >
-                <div
-                  className="
-                    h-10
-                    w-10
-                    rounded-xl
-                    bg-[#0d3b3c]
-                    text-[#20d8d3]
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-                  <Icon size={18} />
-                </div>
 
-                <h3
+                <Activity
+                  size={21}
                   className="
-                    mt-4
-                    text-sm
-                    font-bold
-                    text-slate-200
+                    mx-auto
+                    text-[var(--ss-text-muted)]
                   "
-                >
-                  {title}
-                </h3>
+                />
 
                 <p
                   className="
-                    mt-1
+                    mt-2
                     text-xs
-                    leading-5
-                    text-slate-600
+                    text-[var(--ss-text-muted)]
                   "
                 >
-                  {text}
+                  Your recent practice
+                  sessions will appear here.
                 </p>
 
-                <div
-                  className="
-                    mt-4
-                    flex
-                    items-center
-                    gap-1
-                    text-xs
-                    font-semibold
-                    text-[#20d8d3]
-                  "
-                >
-                  Open
-                  <ArrowRight
-                    size={13}
-                    className="
-                      transition-transform
-                      group-hover:translate-x-1
-                    "
-                  />
-                </div>
-              </Link>
-            )
-          )}
+              </div>
+            )}
+
+          </div>
 
         </div>
 
-      </Card>
-
-
-      <div
-        className="
-          flex
-          items-center
-          justify-between
-          pb-2
-          text-[11px]
-          text-slate-700
-        "
-      >
-        <span>
-          SignSpeak AI learner intelligence
-        </span>
-
-        <span>
-          Performance data from connected learner APIs
-        </span>
-      </div>
+      </section>
 
     </div>
   );

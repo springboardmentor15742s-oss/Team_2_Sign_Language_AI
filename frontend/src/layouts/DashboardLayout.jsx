@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Topbar } from '../components/layout/Topbar';
+import { AICompanion } from '../components/assistant/AICompanion';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 
 export function DashboardLayout() {
@@ -9,7 +10,7 @@ export function DashboardLayout() {
   const isMobile = useMediaQuery('(max-width: 1024px)');
 
   return (
-    <div className="min-h-screen bg-surface text-slate-100 flex">
+    <div className="min-h-screen ss-page flex">
       {!isMobile && <Sidebar />}
 
       {isMobile && mobileMenuOpen && (
@@ -21,12 +22,14 @@ export function DashboardLayout() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col min-w-0 bg-surface">
+      <div className="flex-1 flex flex-col min-w-0 ss-page">
         <Topbar onMenuClick={() => setMobileMenuOpen(true)} />
         <main className="flex-1 p-4 sm:p-5 lg:p-7 overflow-y-auto">
           <Outlet />
         </main>
       </div>
+
+      <AICompanion />
     </div>
   );
 }

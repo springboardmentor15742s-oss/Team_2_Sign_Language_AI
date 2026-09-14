@@ -1,31 +1,75 @@
-import { CheckCircle, XCircle, AlertCircle, Lightbulb } from 'lucide-react';
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Lightbulb,
+} from 'lucide-react';
+
 import { Card } from '../ui/Card';
 
 export function FeedbackPanel({ feedback }) {
   if (!feedback) return null;
 
   const icons = {
-    success: <CheckCircle size={20} className="text-success" />,
-    error: <XCircle size={20} className="text-danger" />,
-    warning: <AlertCircle size={20} className="text-warning" />,
-    tip: <Lightbulb size={20} className="text-primary" />,
+    success: (
+      <CheckCircle
+        size={20}
+        className="text-success"
+      />
+    ),
+
+    error: (
+      <XCircle
+        size={20}
+        className="text-danger"
+      />
+    ),
+
+    warning: (
+      <AlertCircle
+        size={20}
+        className="text-[var(--ss-copper)]"
+      />
+    ),
+
+    tip: (
+      <Lightbulb
+        size={20}
+        className="text-[var(--ss-primary)]"
+      />
+    ),
   };
 
-  const borders = {
-    success: 'border-success-100 bg-success-50',
-    error: 'border-danger-100 bg-danger-50',
-    warning: 'border-warning-100 bg-warning-50',
-    tip: 'border-primary-100 bg-primary-50',
+  const states = {
+    success: 'ss-feedback-success',
+    error: 'ss-feedback-error',
+    warning: 'ss-feedback-warning',
+    tip: 'ss-feedback-info',
   };
 
   return (
-    <Card className={`border ${borders[feedback.type] || borders.tip}`}>
+    <Card
+      className={`border ${
+        states[feedback.type] ||
+        states.tip
+      }`}
+    >
       <div className="flex items-start gap-3">
+
         {icons[feedback.type] || icons.tip}
+
         <div>
-          <p className="text-sm font-medium text-gray-900">{feedback.title}</p>
-          <p className="text-sm text-gray-600 mt-1">{feedback.message}</p>
+
+          <p className="text-sm font-semibold text-[var(--ss-text)]">
+            {feedback.title}
+          </p>
+
+          <p className="mt-1 text-sm leading-6 text-[var(--ss-text-soft)]">
+            {feedback.message}
+          </p>
+
         </div>
+
       </div>
     </Card>
   );

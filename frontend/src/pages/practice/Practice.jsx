@@ -78,6 +78,11 @@ export default function Practice() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLiveEvaluation, setIsLiveEvaluation] = useState(false);
 
+  const [isCollectingLandmarks, setIsCollectingLandmarks] =
+    useState(false);
+  const [collectionProgress, setCollectionProgress] =
+    useState(null);
+
   const [sessionId, setSessionId] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const [successfulAttempts, setSuccessfulAttempts] = useState(0);
@@ -125,15 +130,166 @@ export default function Practice() {
   };
 
 
+
+  const collectCurrentSignLandmarks = async () => {
+    if (currentSign.sign === 'J' || currentSign.sign === 'Z') {
+      setFeedback({
+        type: 'warning',
+        title: 'Dynamic motion sign excluded',
+        message: `Letters J and Z require continuous trajectory tracking and cannot be sampled as static single-frame landmarks.`,
+      });
+      return;
+    }
+
+    if (!cameraRef.current) {
+      setFeedback({
+        type: 'warning',
+        title: 'Camera unavailable',
+        message: 'Start the camera first.',
+      });
+      return;
+    }
+
+    if (!cameraRef.current.isCameraActive()) {
+      setFeedback({
+        type: 'warning',
+        title: 'Start the camera first',
+        message: 'Start the camera and place your hand inside the guide.',
+      });
+      return;
+    }
+
+    if (!cameraRef.current.isHandDetected()) {
+      setFeedback({
+        type: 'warning',
+        title: 'Hand not detected',
+        message: 'Keep your hand clearly visible inside the guide before collecting.',
+      });
+      return;
+    }
+
+    setIsCollectingLandmarks(true);
+    setCollectionProgress({
+      current: 0,
+      target: 100,
+      label: currentSign.sign,
+    });
+
+    const targetCount = 100;
+    const samples = [];
+    let attempts = 0;
+    const maxAttempts = 350;
+
+    try {
+      while (samples.length < targetCount && attempts < maxAttempts) {
+        attempts += 1;
+
+        if (cameraRef.current?.isHandDetected()) {
+          const landmarks =
+            cameraRef.current.getCurrentLandmarks();
+
+          if (
+            Array.isArray(landmarks) &&
+            landmarks.length === 63
+          ) {
+            samples.push(landmarks);
+            setCollectionProgress({
+              current: samples.length,
+              target: targetCount,
+              label: currentSign.sign,
+            });
+          }
+        }
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, 65)
+        );
+      }
+
+      if (samples.length < 50) {
+        throw new Error(
+          `Only ${samples.length} valid samples were captured. Keep your hand visible and try again.`
+        );
+      }
+
+      await mlService.collectLandmarks({
+        label: currentSign.sign,
+        samples,
+      });
+
+      setFeedback({
+        type: 'success',
+        title: `${samples.length} landmark samples saved for ${currentSign.name}`,
+        message: `${samples.length} landmark samples saved for ${currentSign.name}.`,
+      });
+
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        title: 'Sample collection failed',
+        message:
+          error?.response?.data?.detail ||
+          error?.message ||
+          'Unable to save landmark samples.',
+      });
+
+    } finally {
+      setIsCollectingLandmarks(false);
+      setCollectionProgress(null);
+    }
+  };
+
+
   const analyzeSign = async () => {
     try {
       setIsAnalyzing(true);
       setFeedback(null);
 
+      if (currentSign.sign === 'J' || currentSign.sign === 'Z') {
+        setFeedback({
+          type: 'tip',
+          title: `Letter ${currentSign.sign} is a motion sign`,
+          message:
+            'Letters J and Z require continuous movement tracking. Single-frame static landmark classification is not supported for motion signs.',
+        });
+        return;
+      }
+
       if (!cameraRef.current) {
         throw new Error(
           'Camera is not ready. Please start the camera.'
         );
+      }
+
+      if (!cameraRef.current.isCameraActive()) {
+        throw new Error(
+          'Start the camera before analyzing your sign.'
+        );
+      }
+
+      if (!cameraRef.current.isHandDetected()) {
+        setFeedback({
+          type: 'warning',
+          title: 'Hand not detected',
+          message: 'Move your hand into the guide and try again.',
+        });
+        return;
+      }
+
+      const features =
+        cameraRef.current.getCurrentLandmarks();
+
+      if (
+        !Array.isArray(features) ||
+        features.length !== 63
+      ) {
+        setFeedback({
+          type: 'warning',
+          title: 'Could not read landmarks',
+          message:
+            'Keep your hand clearly visible inside the guide.',
+        });
+        return;
       }
 
       let activeSessionId = sessionId;
@@ -151,12 +307,8 @@ export default function Practice() {
       }
 
 
-      const imageFile =
-        await cameraRef.current.captureFrame();
-
-
       const response =
-        await mlService.predictSign(imageFile);
+        await mlService.predictLandmarks(features);
 
       const result = response.data;
 
@@ -171,7 +323,11 @@ export default function Practice() {
           result.predicted_sign || ''
         ).toUpperCase();
 
+      const uncertain =
+        Boolean(result.uncertain);
+
       const correct =
+        !uncertain &&
         expected === predicted;
 
 
@@ -249,7 +405,10 @@ export default function Practice() {
       let title =
         `AI detected ${predicted || 'another sign'}`;
 
-      if (correct && score >= 70) {
+      if (uncertain) {
+        type = 'tip';
+        title = 'Hold the sign steady and try again';
+      } else if (correct && score >= 70) {
         type = 'success';
         title = 'Correct sign!';
       } else if (correct) {
@@ -302,7 +461,7 @@ export default function Practice() {
 
     const timeout = setTimeout(() => {
       analyzeSign();
-    }, 1500);
+    }, 800);
 
     return () => {
       clearTimeout(timeout);
@@ -357,6 +516,7 @@ export default function Practice() {
 
 
   const nextSign = () => {
+    if (isCollectingLandmarks) return;
     setIsLiveEvaluation(false);
 
     setCurrentIndex(
@@ -370,6 +530,7 @@ export default function Practice() {
 
 
   const selectSign = (index) => {
+    if (isCollectingLandmarks) return;
     setIsLiveEvaluation(false);
     setCurrentIndex(index);
     clearSession();
@@ -415,7 +576,7 @@ export default function Practice() {
 
           <div>
 
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#20d8d3]">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold ss-practice-accent">
               <Sparkles size={14} />
               AI Gesture Recognition
             </div>
@@ -424,7 +585,7 @@ export default function Practice() {
               Practice with SignSpeak AI
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+            <p className="mt-2 max-w-2xl text-sm leading-6 ss-practice-body">
               Perform the target sign using your camera.
               SignSpeak predicts the gesture, measures
               confidence, generates AI feedback and records
@@ -484,7 +645,7 @@ export default function Practice() {
             Attempts
           </p>
 
-          <p className="mt-1 text-2xl font-bold text-white">
+          <p className="mt-1 text-2xl font-bold ss-practice-title">
             {attempts}
           </p>
         </Card>
@@ -506,7 +667,7 @@ export default function Practice() {
             Session Accuracy
           </p>
 
-          <p className="mt-1 text-2xl font-bold text-[#20d8d3]">
+          <p className="mt-1 text-2xl font-bold ss-practice-accent">
             {sessionAccuracy}%
           </p>
         </Card>
@@ -532,7 +693,7 @@ export default function Practice() {
 
         {/* LEFT */}
 
-        <div className="space-y-5">
+        <div className="space-y-5 ss-practice-page">
 
           <Card
             padding="none"
@@ -543,12 +704,12 @@ export default function Practice() {
 
               <div className="flex items-center gap-3">
 
-                <div className="h-9 w-9 rounded-xl bg-cyan-500/10 text-[#20d8d3] flex items-center justify-center">
+                <div className="h-9 w-9 rounded-xl bg-cyan-500/10 ss-practice-accent flex items-center justify-center">
                   <Video size={18} />
                 </div>
 
                 <div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold ss-practice-title">
                     Live AI Camera
                   </p>
 
@@ -594,7 +755,7 @@ export default function Practice() {
                   className="text-amber-400"
                 />
 
-                <h3 className="font-bold text-white">
+                <h3 className="font-bold ss-practice-title">
                   AI Confidence
                 </h3>
               </div>
@@ -613,7 +774,7 @@ export default function Practice() {
                       Expected
                     </span>
 
-                    <span className="font-bold text-white">
+                    <span className="font-bold ss-practice-title">
                       {prediction.expected}
                     </span>
                   </div>
@@ -669,11 +830,11 @@ export default function Practice() {
 
                 <div className="h-full flex flex-col justify-center">
 
-                  <div className="h-10 w-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-xl bg-[var(--ss-surface-2)] text-[var(--ss-copper)] flex items-center justify-center">
                     <Sparkles size={19} />
                   </div>
 
-                  <h3 className="mt-3 font-bold text-white">
+                  <h3 className="mt-3 font-bold ss-practice-title">
                     AI Feedback
                   </h3>
 
@@ -695,11 +856,11 @@ export default function Practice() {
           {detections.length > 0 && (
             <Card padding="large">
 
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#20d8d3]">
+              <p className="text-xs font-semibold uppercase tracking-wider ss-practice-accent">
                 Session History
               </p>
 
-              <h3 className="mt-1 mb-4 font-bold text-white">
+              <h3 className="mt-1 mb-4 font-bold ss-practice-title">
                 Recent AI Detections
               </h3>
 
@@ -783,10 +944,10 @@ export default function Practice() {
               <div className="flex items-center gap-2">
                 <Hand
                   size={18}
-                  className="text-[#20d8d3]"
+                  className="ss-practice-accent"
                 />
 
-                <span className="text-xs font-bold uppercase tracking-wider text-[#20d8d3]">
+                <span className="text-xs font-bold uppercase tracking-wider ss-practice-accent">
                   Target Sign
                 </span>
               </div>
@@ -801,20 +962,20 @@ export default function Practice() {
             </div>
 
 
-            <h2 className="mt-4 text-3xl font-bold text-white">
+            <h2 className="mt-4 text-3xl font-bold ss-practice-title">
               {currentSign.name}
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-400">
+            <p className="mt-2 text-sm leading-6 ss-practice-body">
               {currentSign.instruction}
             </p>
 
 
-            <div className="mt-5 rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.05] p-4 flex gap-3">
+            <div className="mt-5 ss-practice-info rounded-xl p-4 flex gap-3">
 
               <Info
                 size={17}
-                className="text-[#20d8d3] mt-0.5 shrink-0"
+                className="ss-practice-accent mt-0.5 shrink-0"
               />
 
               <p className="text-xs leading-5 text-slate-400">
@@ -833,7 +994,7 @@ export default function Practice() {
                 variant={isLiveEvaluation ? 'outline' : 'primary'}
                 className="w-full"
                 onClick={toggleLiveEvaluation}
-                disabled={isAnalyzing}
+                disabled={isAnalyzing || isCollectingLandmarks}
               >
                 <Zap size={16} />
 
@@ -843,10 +1004,37 @@ export default function Practice() {
               </Button>
 
 
+              {import.meta.env.VITE_ENABLE_DATA_COLLECTION === 'true' && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={collectCurrentSignLandmarks}
+                  disabled={
+                    isCollectingLandmarks ||
+                    isAnalyzing ||
+                    isLiveEvaluation ||
+                    currentSign.sign === 'J' ||
+                    currentSign.sign === 'Z'
+                  }
+                >
+                  {isCollectingLandmarks && collectionProgress ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      Collecting {collectionProgress.label}: {collectionProgress.current} / {collectionProgress.target}
+                    </span>
+                  ) : currentSign.sign === 'J' || currentSign.sign === 'Z' ? (
+                    `Letter ${currentSign.sign} (Motion Sign - Excluded)`
+                  ) : (
+                    `Collect ${currentSign.name} Training Samples`
+                  )}
+                </Button>
+              )}
+
+
               <Button
                 className="w-full"
                 onClick={analyzeSign}
-                disabled={isAnalyzing || isLiveEvaluation}
+                disabled={isAnalyzing || isLiveEvaluation || isCollectingLandmarks}
               >
                 {isAnalyzing ? (
                   <>
@@ -869,7 +1057,7 @@ export default function Practice() {
                 variant="outline"
                 className="w-full"
                 onClick={nextSign}
-                disabled={isAnalyzing}
+                disabled={isAnalyzing || isCollectingLandmarks}
               >
                 Next Sign
                 <ArrowRight size={16} />
@@ -886,7 +1074,7 @@ export default function Practice() {
 
             <div className="flex items-center justify-between mb-4">
 
-              <h3 className="font-bold text-white">
+              <h3 className="font-bold ss-practice-title">
                 Practice Queue
               </h3>
 
@@ -903,21 +1091,22 @@ export default function Practice() {
                 (sign, index) => (
                   <button
                     key={sign.id}
+                    disabled={isCollectingLandmarks}
                     onClick={() =>
                       selectSign(index)
                     }
                     className={`w-full flex items-center gap-3 p-3 rounded-xl text-left border transition-all ${
                       index === currentIndex
-                        ? 'bg-cyan-500/10 border-cyan-500/30'
-                        : 'border-transparent hover:border-slate-800 hover:bg-white/[0.02]'
-                    }`}
+                        ? 'ss-practice-queue-item-active'
+                        : 'ss-practice-queue-item'
+                    } ${isCollectingLandmarks ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
 
                     <span
                       className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
                         index === currentIndex
-                          ? 'bg-[#16c8c4] text-slate-950'
-                          : 'bg-slate-800 text-slate-400'
+                          ? 'ss-practice-queue-number-active'
+                          : 'ss-practice-queue-number'
                       }`}
                     >
                       {index + 1}
@@ -927,7 +1116,7 @@ export default function Practice() {
                     <span
                       className={`text-sm font-semibold flex-1 ${
                         index === currentIndex
-                          ? 'text-[#20d8d3]'
+                          ? 'ss-practice-accent'
                           : 'text-slate-300'
                       }`}
                     >
@@ -938,7 +1127,7 @@ export default function Practice() {
                     {index === currentIndex ? (
                       <CheckCircle2
                         size={16}
-                        className="text-[#20d8d3]"
+                        className="ss-practice-accent"
                       />
                     ) : (
                       <CircleAlert
@@ -962,12 +1151,12 @@ export default function Practice() {
 
             <div className="flex items-center gap-3 mb-4">
 
-              <div className="h-9 w-9 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+              <div className="h-9 w-9 rounded-xl bg-[var(--ss-surface-2)] text-[var(--ss-copper)] flex items-center justify-center">
                 <Sparkles size={17} />
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-white">
+                <h3 className="text-sm font-bold ss-practice-title">
                   Learning Intelligence
                 </h3>
 
@@ -1008,7 +1197,7 @@ export default function Practice() {
                   Accuracy
                 </span>
 
-                <span className="font-semibold text-[#20d8d3]">
+                <span className="font-semibold ss-practice-accent">
                   {sessionAccuracy}%
                 </span>
               </div>

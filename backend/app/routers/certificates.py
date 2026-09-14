@@ -21,6 +21,11 @@ def serialize_certificate(certificate: Certificate):
     return {
         "id": certificate.id,
         "user_id": certificate.user_id,
+        "recipient_name": (
+            certificate.user.full_name
+            if certificate.user and certificate.user.full_name
+            else None
+        ),
         "course_id": certificate.course_id,
         "certificate_number": certificate.certificate_number,
         "title": certificate.title,

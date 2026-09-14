@@ -36,4 +36,24 @@ export const mlService = {
     );
   },
 
+
+  collectLandmarks: async ({ label, samples }) => {
+    return apiClient.post(
+      '/ml/landmarks/collect',
+      {
+        label,
+        samples,
+      }
+    );
+  },
+
+  predictLandmarks: async (features) => {
+    return apiClient.post(
+      '/ml/predict-landmarks',
+      {
+        features,
+      }
+    );
+  },
+
 };

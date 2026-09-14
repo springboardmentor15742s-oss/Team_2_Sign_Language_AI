@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 import certificateService from '../../services/certificateService';
 
 const formatDate = (value) => {
@@ -24,7 +25,14 @@ const formatDate = (value) => {
 };
 
 function CertificatePreview({ certificate, onClose }) {
+  const { user } = useAuth();
   if (!certificate) return null;
+
+  const learnerName =
+    certificate.recipient_name ||
+    certificate.user?.full_name ||
+    user?.full_name ||
+    'Learner';
 
   const copyNumber = async () => {
     try {
@@ -73,23 +81,31 @@ function CertificatePreview({ certificate, onClose }) {
               SignSpeak AI Learning Platform
             </div>
 
-            <h1 className="mt-6 text-4xl md:text-6xl font-black tracking-tight">
-              Certificate
+            <h1 className="mt-6 text-3xl md:text-5xl font-black tracking-tight uppercase">
+              Certificate of Completion
             </h1>
 
-            <p className="mt-2 text-xl md:text-2xl text-slate-500 font-medium">
-              of Completion
+            <div className="w-24 h-1 bg-[#16d4d0] rounded-full my-6" />
+
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-500 font-semibold">
+              This is to certify that
             </p>
 
-            <div className="w-24 h-1 bg-[#16d4d0] rounded-full my-8" />
-
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">
-              This certificate recognizes successful completion of
-            </p>
-
-            <h2 className="mt-4 max-w-3xl text-2xl md:text-4xl font-extrabold text-slate-900">
-              {certificate.title || 'SignSpeak Course'}
+            <h2 className="mt-3 text-2xl md:text-4xl font-black text-slate-900">
+              {learnerName}
             </h2>
+
+            <p className="mt-4 text-xs uppercase tracking-[0.25em] text-slate-500 font-semibold">
+              has successfully completed
+            </p>
+
+            <h3 className="mt-2 max-w-3xl text-xl md:text-2xl font-bold text-[#0f8f8c]">
+              {certificate.course?.title || certificate.title || 'SignSpeak Course'}
+            </h3>
+
+            <p className="mt-3 text-xs text-slate-500 max-w-xl">
+              on the SignSpeak AI Sign Language Learning Platform.
+            </p>
 
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5 w-full max-w-2xl text-left">
               <div className="rounded-2xl border border-slate-200 bg-white/80 p-5">

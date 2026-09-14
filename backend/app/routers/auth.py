@@ -364,27 +364,36 @@ def forgot_password(
     db.add(db_token)
     db.commit()
 
-    try:
-        send_password_reset_email(
+    if settings.RESEND_API_KEY:
+        try:
+            send_password_reset_email(
+                user.email,
+                reset_token,
+            )
+        except Exception as exc:
+            # Remove the unusable token if the email failed.
+            db.delete(db_token)
+            db.commit()
+
+            logger.exception(
+                "Password reset email failed for user_id=%s",
+                user.id,
+            )
+
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    "Unable to send password reset email"
+                ),
+            )
+    else:
+        logger.warning(
+            "RESEND_API_KEY is not configured. Email delivery skipped. "
+            "Password reset token for %s: %s (URL: %s?token=%s)",
             user.email,
             reset_token,
-        )
-
-    except Exception as exc:
-        # Remove the unusable token if the email failed.
-        db.delete(db_token)
-        db.commit()
-
-        logger.exception(
-            "Password reset email failed for user_id=%s",
-            user.id,
-        )
-
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=(
-                "Unable to send password reset email"
-            ),
+            settings.FRONTEND_RESET_URL,
+            reset_token,
         )
 
     return MessageResponse(

@@ -60,3 +60,25 @@ ml/cnn_venv/
 # Personal/custom external test images
 ml/data/custom_test/
 RISE-RST/
+
+# Temporary development artifacts
+SignSpeak-Frontend-Current.zip
+frontend-ui-backup/
+backend-landmark.log
+*.backup
+*.before_*
+*.before_landmarks
+*.before_landmark_collection
+*ml_inference_experiment.py
+
+# Local development artifacts
+SignSpeak-Frontend-Current.zip
+frontend-ui-backup/
+backend-landmark.log
+*.backup
+*.before_*
+*.before_landmarks
+*.before_landmark_collection
+.DS_Store
+frontend/dist/
+frontend/node_modules/
