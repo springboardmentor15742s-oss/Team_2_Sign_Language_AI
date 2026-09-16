@@ -1,0 +1,6 @@
+Image,Expected,Predicted,Confidence,Correct
+my_A.jpg,A,N,43.18,False
+my_B.jpg,B,E,54.43,False
+my_C.jpg,C,C,92.02,True
+my_L.jpg,L,C,63.36,False
+my_V.jpg,V,I,81.38,False

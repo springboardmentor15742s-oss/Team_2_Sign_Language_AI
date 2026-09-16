@@ -1,0 +1,2600 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; background: #0b1018; }
+  body { @apply bg-surface text-slate-100 font-sans antialiased; }
+  h1, h2, h3, h4, h5, h6 { @apply font-display; }
+  ::selection { @apply bg-primary-900 text-white; }
+  :focus-visible { outline: 2px solid #14c9c5; outline-offset: 2px; border-radius: 6px; }
+}
+
+@layer components {
+  .container-page { @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-slate-700 rounded-full; }
+  .bg-grid { background-image: radial-gradient(circle, rgba(20,201,197,0.08) 1px, transparent 1px); background-size: 24px 24px; }
+  .bg-grid-dark { background-image: radial-gradient(circle, rgba(148,163,184,0.10) 1px, transparent 1px); background-size: 26px 26px; }
+  .text-gradient { background: linear-gradient(90deg, #38e3df, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+
+/* =========================================================
+   SIGNSPEAK THEME SYSTEM
+========================================================= */
+
+:root {
+  --ss-bg: #f4f8fc;
+  --ss-surface: #ffffff;
+  --ss-surface-2: #eef4fa;
+  --ss-card: #ffffff;
+
+  --ss-text: #102033;
+  --ss-text-soft: #52657a;
+  --ss-text-muted: #8190a3;
+
+  --ss-border: rgba(15, 23, 42, 0.08);
+
+  --ss-sidebar: #f7fbff;
+  --ss-topbar: rgba(255, 255, 255, 0.92);
+
+  --ss-shadow:
+    0 18px 45px rgba(38, 79, 120, 0.08);
+
+  --ss-primary: #258df7;
+  --ss-accent: #27d1cc;
+}
+
+
+html[data-theme="dark"] {
+  --ss-bg: #08111d;
+  --ss-surface: #0d1827;
+  --ss-surface-2: #111f30;
+  --ss-card: #0f1a29;
+
+  --ss-text: #f5f8fc;
+  --ss-text-soft: #9aabc0;
+  --ss-text-muted: #5d7088;
+
+  --ss-border: rgba(255, 255, 255, 0.065);
+
+  --ss-sidebar: #07101d;
+  --ss-topbar: rgba(9, 19, 33, 0.92);
+
+  --ss-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.25);
+
+  --ss-primary: #258df7;
+  --ss-accent: #2bd3ce;
+}
+
+
+body {
+  background: var(--ss-bg);
+  color: var(--ss-text);
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+
+.ss-page {
+  background: var(--ss-bg);
+  color: var(--ss-text);
+}
+
+
+.ss-card {
+  background: var(--ss-card);
+  border: 1px solid var(--ss-border);
+  box-shadow: var(--ss-shadow);
+}
+
+
+.ss-surface {
+  background: var(--ss-surface);
+}
+
+
+.ss-text {
+  color: var(--ss-text);
+}
+
+
+.ss-text-soft {
+  color: var(--ss-text-soft);
+}
+
+
+.ss-text-muted {
+  color: var(--ss-text-muted);
+}
+
+/* =========================================================
+   SIGNLINGO-INSPIRED FINAL COLOR PASS
+========================================================= */
+
+
+/* =========================
+   LIGHT MODE
+========================= */
+
+html[data-theme="light"] {
+
+  --ss-bg: #EAF5FF;
+
+  --ss-sidebar: #F8FCFF;
+  --ss-topbar: rgba(255,255,255,0.96);
+
+  --ss-surface: #FFFFFF;
+  --ss-surface-2: #EDF7FF;
+  --ss-card: #FFFFFF;
+
+  --ss-text: #10243E;
+  --ss-text-soft: #5F748C;
+  --ss-text-muted: #8A9DB1;
+
+  --ss-border: #D8E7F3;
+
+  --ss-primary: #2D92F4;
+  --ss-accent: #26CBE8;
+
+  /* stronger light-blue hero */
+  --ss-hero-start: #CDEBFF;
+  --ss-hero-middle: #E0F3FF;
+  --ss-hero-end: #F1F9FF;
+
+  --ss-hero-text: #10243E;
+  --ss-hero-soft: #56718A;
+
+  /* practice card should NOT be dark */
+  --ss-practice-start: #DDF4FF;
+  --ss-practice-end: #F2FAFF;
+
+  --ss-shadow:
+    0 10px 28px rgba(59, 101, 141, 0.08);
+}
+
+
+/* =========================
+   DARK MODE
+========================= */
+
+html[data-theme="dark"] {
+
+  --ss-bg: #061426;
+
+  --ss-sidebar: #061426;
+  --ss-topbar: rgba(6,20,38,0.97);
+
+  --ss-surface: #091A2E;
+  --ss-surface-2: #10253D;
+  --ss-card: #0C2037;
+
+  --ss-text: #F7FBFF;
+  --ss-text-soft: #A4B7CC;
+  --ss-text-muted: #69829B;
+
+  --ss-border: rgba(150,195,232,0.11);
+
+  --ss-primary: #329BFF;
+  --ss-accent: #31D2ED;
+
+  --ss-hero-start: #092B4C;
+  --ss-hero-middle: #0C3156;
+  --ss-hero-end: #102845;
+
+  --ss-hero-text: #FFFFFF;
+  --ss-hero-soft: #A8BBCE;
+
+  --ss-practice-start: #0A304B;
+  --ss-practice-end: #0A213B;
+
+  --ss-shadow:
+    0 16px 40px rgba(0,0,0,0.24);
+}
+
+
+/* =========================================================
+   LIGHT SIDEBAR
+========================================================= */
+
+html[data-theme="light"] aside {
+  background: #F8FCFF !important;
+  color: #10243E !important;
+  border-color: #D8E7F3 !important;
+}
+
+
+/* sidebar labels */
+
+html[data-theme="light"] aside .text-white {
+  color: #10243E !important;
+}
+
+html[data-theme="light"] aside .text-slate-400,
+html[data-theme="light"] aside .text-slate-500,
+html[data-theme="light"] aside .text-slate-600 {
+  color: #71869B !important;
+}
+
+
+/* footer mini card */
+
+html[data-theme="light"] aside .ss-theme-surface-2 {
+  background: #EAF6FF !important;
+}
+
+
+/* =========================================================
+   LIGHT DASHBOARD CARDS
+========================================================= */
+
+html[data-theme="light"] .dashboard-theme .ss-theme-card {
+  background: #FFFFFF !important;
+  border-color: #DCE9F4 !important;
+
+  box-shadow:
+    0 8px 24px rgba(57, 97, 135, 0.06);
+}
+
+
+html[data-theme="light"] .dashboard-theme .ss-theme-surface-2 {
+  background: #EDF7FF !important;
+}
+
+
+/* =========================================================
+   LIGHT PRACTICE CARD
+========================================================= */
+
+html[data-theme="light"] .dashboard-theme
+.bg-gradient-to-br.from-\[var\(--ss-practice-start\)\] {
+
+  color: #10243E !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme
+.bg-gradient-to-br.from-\[var\(--ss-practice-start\)\]
+h2 {
+
+  color: #10243E !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme
+.bg-gradient-to-br.from-\[var\(--ss-practice-start\)\]
+p {
+
+  color: #60768E !important;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+html[data-theme="light"] .ss-dashboard-hero {
+
+  background:
+    linear-gradient(
+      115deg,
+      #CBEAFF 0%,
+      #DEF2FF 52%,
+      #F1F9FF 100%
+    ) !important;
+
+  border-color: #CCE1F0 !important;
+
+  box-shadow:
+    0 12px 32px rgba(60, 104, 145, 0.08);
+}
+
+
+html[data-theme="dark"] .ss-dashboard-hero {
+
+  background:
+    linear-gradient(
+      115deg,
+      #082843 0%,
+      #0B3154 55%,
+      #102A49 100%
+    ) !important;
+}
+
+
+/* =========================================================
+   TOPBAR LIGHT
+========================================================= */
+
+html[data-theme="light"] header {
+
+  background:
+    rgba(255,255,255,0.97) !important;
+
+  border-color:
+    #DDE9F3 !important;
+}
+
+
+/* =========================================================
+   ACTIVE SIDEBAR ITEM
+========================================================= */
+
+html[data-theme="light"] aside a[style*="--ss-primary-soft"] {
+  color: #187EDB !important;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+html[data-theme="light"] body,
+html[data-theme="light"] .ss-page {
+
+  background:
+    #EAF5FF !important;
+}
+
+
+
+/* =========================================================
+   SIGN SPEAK — CLEAN REFERENCE PALETTE
+   FINAL OVERRIDE
+========================================================= */
+
+
+/* =========================
+   LIGHT MODE
+========================= */
+
+html[data-theme="light"] {
+  --ss-bg: #F7FBFF;
+  --ss-surface: #FFFFFF;
+  --ss-surface-2: #F3F8FD;
+  --ss-card: #FFFFFF;
+
+  --ss-sidebar: #FFFFFF;
+  --ss-topbar: rgba(255,255,255,0.98);
+
+  --ss-text: #13243A;
+  --ss-text-soft: #607186;
+  --ss-text-muted: #8A99AA;
+
+  --ss-border: #E3EBF3;
+
+  --ss-primary: #168EF7;
+  --ss-primary-soft: #E8F4FF;
+
+  --ss-accent: #24CBE8;
+  --ss-accent-soft: #E8FBFF;
+
+  --ss-hero-start: #FFFFFF;
+  --ss-hero-middle: #F4FAFF;
+  --ss-hero-end: #DDF2FF;
+
+  --ss-practice-start: #FFFFFF;
+  --ss-practice-end: #ECF8FF;
+
+  --ss-shadow:
+    0 8px 30px rgba(49, 86, 120, 0.07);
+}
+
+
+/* =========================
+   DARK MODE
+========================= */
+
+html[data-theme="dark"] {
+  --ss-bg: #071426;
+  --ss-surface: #0A1A2D;
+  --ss-surface-2: #10233A;
+  --ss-card: #0D2036;
+
+  --ss-sidebar: #071426;
+  --ss-topbar: rgba(7,20,38,0.98);
+
+  --ss-text: #FFFFFF;
+  --ss-text-soft: #A7B6C7;
+  --ss-text-muted: #697D93;
+
+  --ss-border: rgba(151,190,226,0.10);
+
+  --ss-primary: #2999FF;
+  --ss-primary-soft: #11345B;
+
+  --ss-accent: #32D5EE;
+  --ss-accent-soft: #0C354A;
+
+  --ss-hero-start: #0A2644;
+  --ss-hero-middle: #0B2F52;
+  --ss-hero-end: #10243E;
+
+  --ss-practice-start: #0B2945;
+  --ss-practice-end: #0A2038;
+
+  --ss-shadow:
+    0 16px 40px rgba(0,0,0,0.24);
+}
+
+
+/* =========================
+   LIGHT PAGE
+========================= */
+
+html[data-theme="light"] body,
+html[data-theme="light"] #root,
+html[data-theme="light"] .ss-page {
+  background: #F7FBFF !important;
+}
+
+
+/* =========================
+   LIGHT SIDEBAR
+========================= */
+
+html[data-theme="light"] aside {
+  background: #FFFFFF !important;
+  color: #13243A !important;
+  border-color: #E3EBF3 !important;
+}
+
+
+/* sidebar normal text */
+
+html[data-theme="light"] aside a {
+  color: #66788D !important;
+}
+
+
+/* ACTIVE SIDEBAR ITEM */
+
+html[data-theme="light"] aside a[href="/dashboard"] {
+  background: #168EF7 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 7px 20px rgba(22,142,247,0.18) !important;
+}
+
+
+html[data-theme="light"] aside a[href="/dashboard"] svg {
+  color: #FFFFFF !important;
+}
+
+
+html[data-theme="light"] aside a[href="/dashboard"] div {
+  background: transparent !important;
+  color: #FFFFFF !important;
+}
+
+
+/* sidebar heading */
+
+html[data-theme="light"] aside p {
+  color: #788A9D;
+}
+
+
+/* Sign smarter card */
+
+html[data-theme="light"] aside > div:last-child > div {
+  background:
+    linear-gradient(
+      135deg,
+      #EDF8FF,
+      #F7FCFF
+    ) !important;
+
+  border-color: #DCEAF5 !important;
+}
+
+
+html[data-theme="light"] aside > div:last-child > div p:first-child {
+  color: #168EF7 !important;
+}
+
+
+/* =========================
+   TOPBAR
+========================= */
+
+html[data-theme="light"] header {
+  background: #FFFFFF !important;
+  border-color: #E3EBF3 !important;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+html[data-theme="light"] .ss-dashboard-hero {
+  background:
+    linear-gradient(
+      110deg,
+      #FFFFFF 0%,
+      #F5FAFF 55%,
+      #DDF2FF 100%
+    ) !important;
+
+  border-color: #DFEAF3 !important;
+
+  box-shadow:
+    0 10px 30px rgba(47,94,135,0.06) !important;
+}
+
+
+html[data-theme="light"] .ss-dashboard-hero h1 {
+  color: #13243A !important;
+}
+
+
+html[data-theme="light"] .ss-dashboard-hero p {
+  color: #607186 !important;
+}
+
+
+/* =========================
+   DASHBOARD CARDS
+========================= */
+
+html[data-theme="light"] .dashboard-theme .ss-theme-card,
+html[data-theme="light"] .dashboard-theme .ss-card {
+  background: #FFFFFF !important;
+  color: #13243A !important;
+  border-color: #E3EBF3 !important;
+
+  box-shadow:
+    0 7px 24px rgba(45,83,118,0.055) !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme .ss-theme-surface-2 {
+  background: #F5FAFF !important;
+}
+
+
+/* headings */
+
+html[data-theme="light"] .dashboard-theme h1,
+html[data-theme="light"] .dashboard-theme h2,
+html[data-theme="light"] .dashboard-theme h3,
+html[data-theme="light"] .dashboard-theme .text-white {
+  color: #13243A !important;
+}
+
+
+/* supporting text */
+
+html[data-theme="light"] .dashboard-theme .ss-copy,
+html[data-theme="light"] .dashboard-theme .text-slate-300,
+html[data-theme="light"] .dashboard-theme .text-slate-400 {
+  color: #607186 !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme .ss-muted,
+html[data-theme="light"] .dashboard-theme .text-slate-500,
+html[data-theme="light"] .dashboard-theme .text-slate-600 {
+  color: #8A99AA !important;
+}
+
+
+/* =========================
+   PRACTICE CARD
+========================= */
+
+html[data-theme="light"] .dashboard-theme
+.bg-gradient-to-br {
+  border-color: #DDEAF3 !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme
+.from-\[var\(--ss-practice-start\)\] {
+  background:
+    linear-gradient(
+      135deg,
+      #FFFFFF,
+      #EAF8FF
+    ) !important;
+
+  color: #13243A !important;
+}
+
+
+/* =========================
+   COURSE INNER CARD
+========================= */
+
+html[data-theme="light"] .dashboard-theme
+.bg-\[var\(--ss-surface-2\)\] {
+  background: #F4F9FE !important;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+html[data-theme="light"] .ss-primary-button {
+  background:
+    linear-gradient(
+      135deg,
+      #168EF7,
+      #30B6F3
+    ) !important;
+
+  color: #FFFFFF !important;
+}
+
+
+/* =========================
+   DARK MODE CLEANUP
+========================= */
+
+html[data-theme="dark"] aside {
+  background: #071426 !important;
+}
+
+
+html[data-theme="dark"] .ss-dashboard-hero {
+  background:
+    linear-gradient(
+      110deg,
+      #091F38,
+      #0A2D4D,
+      #10243D
+    ) !important;
+}
+
+
+/* =========================
+   SMOOTH TRANSITIONS
+========================= */
+
+body,
+header,
+aside,
+main,
+.ss-page,
+.ss-dashboard-hero,
+.ss-theme-card,
+.ss-theme-surface,
+.ss-theme-surface-2 {
+  transition:
+    background .22s ease,
+    color .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease;
+}
+
+
+
+/* =========================================================
+   SOFTER LIGHT MODE — LOWER BRIGHTNESS
+========================================================= */
+
+html[data-theme="light"] {
+
+  --ss-bg: #DCE7F2;
+
+  --ss-surface: #EAF1F7;
+  --ss-surface-2: #DCE8F2;
+  --ss-card: #E8EFF5;
+
+  --ss-sidebar: #D7E2EC;
+  --ss-topbar: rgba(229, 237, 244, 0.97);
+
+  --ss-text: #14283D;
+  --ss-text-soft: #52677C;
+  --ss-text-muted: #73869A;
+
+  --ss-border: #C5D2DE;
+
+  --ss-primary: #2C86D8;
+  --ss-primary-soft: #C9DDF1;
+
+  --ss-accent: #2FB6CD;
+  --ss-accent-soft: #CFE8EC;
+
+  --ss-hero-start: #C8DCEA;
+  --ss-hero-middle: #D7E5F0;
+  --ss-hero-end: #E4EEF5;
+
+  --ss-practice-start: #D9E7F0;
+  --ss-practice-end: #E7EFF5;
+
+  --ss-shadow:
+    0 8px 24px rgba(54, 75, 96, 0.08);
+}
+
+
+/* PAGE */
+
+html[data-theme="light"] body,
+html[data-theme="light"] #root,
+html[data-theme="light"] .ss-page {
+  background: #DCE7F2 !important;
+}
+
+
+/* TOPBAR */
+
+html[data-theme="light"] header {
+  background: #E5EDF4 !important;
+  border-color: #C8D4DF !important;
+}
+
+
+/* SIDEBAR */
+
+html[data-theme="light"] aside {
+  background: #D7E2EC !important;
+  border-color: #C6D2DE !important;
+}
+
+
+/* SIDEBAR TEXT */
+
+html[data-theme="light"] aside a {
+  color: #53687D !important;
+}
+
+
+/* ACTIVE NAV */
+
+html[data-theme="light"] aside a[href="/dashboard"] {
+  background: #2C86D8 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 6px 16px rgba(44,134,216,0.16) !important;
+}
+
+
+/* HERO */
+
+html[data-theme="light"] .ss-dashboard-hero {
+
+  background:
+    linear-gradient(
+      115deg,
+      #C4D9E8 0%,
+      #D5E4EE 55%,
+      #E3EDF4 100%
+    ) !important;
+
+  border-color: #C2D0DC !important;
+
+  box-shadow:
+    0 8px 24px rgba(53, 76, 98, 0.07) !important;
+}
+
+
+/* DASHBOARD CARDS */
+
+html[data-theme="light"] .dashboard-theme .ss-theme-card,
+html[data-theme="light"] .dashboard-theme .ss-card {
+
+  background: #E8EFF5 !important;
+
+  border-color: #C8D4DF !important;
+
+  box-shadow:
+    0 6px 18px rgba(54, 75, 96, 0.055) !important;
+}
+
+
+/* INNER SURFACES */
+
+html[data-theme="light"] .dashboard-theme .ss-theme-surface-2 {
+  background: #DCE8F2 !important;
+}
+
+
+/* PRACTICE PANEL */
+
+html[data-theme="light"] .dashboard-theme
+.from-\[var\(--ss-practice-start\)\] {
+
+  background:
+    linear-gradient(
+      135deg,
+      #D6E4EE,
+      #E5EEF4
+    ) !important;
+}
+
+
+/* TEXT */
+
+html[data-theme="light"] .dashboard-theme h1,
+html[data-theme="light"] .dashboard-theme h2,
+html[data-theme="light"] .dashboard-theme h3,
+html[data-theme="light"] .dashboard-theme .text-white {
+  color: #14283D !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme .ss-copy,
+html[data-theme="light"] .dashboard-theme .text-slate-300,
+html[data-theme="light"] .dashboard-theme .text-slate-400 {
+  color: #53687D !important;
+}
+
+
+html[data-theme="light"] .dashboard-theme .ss-muted,
+html[data-theme="light"] .dashboard-theme .text-slate-500,
+html[data-theme="light"] .dashboard-theme .text-slate-600 {
+  color: #73869A !important;
+}
+
+
+/* SIDEBAR MINI CARD */
+
+html[data-theme="light"] aside > div:last-child > div {
+
+  background:
+    linear-gradient(
+      135deg,
+      #CCDDE9,
+      #DCE7EF
+    ) !important;
+
+  border-color: #BCCBD7 !important;
+}
+
+
+/* REDUCE GLOW */
+
+html[data-theme="light"] .ss-primary-button {
+
+  background:
+    linear-gradient(
+      135deg,
+      #2C86D8,
+      #4099D7
+    ) !important;
+
+  box-shadow:
+    0 6px 16px rgba(44,134,216,0.14) !important;
+}
+
+
+/* ACCENT LESS NEON */
+
+html[data-theme="light"] .ss-accent-text {
+  color: #259EB3 !important;
+}
+
+
+
+/* =========================================================
+   AI COMPANION ANIMATIONS
+========================================================= */
+
+@keyframes aiFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+
+@keyframes aiPop {
+  from {
+    opacity: 0;
+    transform:
+      translateY(12px)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+.animate-ai-float {
+  animation:
+    aiFloat
+    3.8s
+    ease-in-out
+    infinite;
+}
+
+
+.animate-ai-pop {
+  animation:
+    aiPop
+    0.22s
+    ease-out;
+}
+
+
+
+/* =========================================================
+   KIKO ROBOT
+========================================================= */
+
+.kiko-robot {
+  position: relative;
+
+  width: 88px;
+  height: 112px;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+
+  animation:
+    kikoRobotFloat
+    3.2s
+    ease-in-out
+    infinite;
+
+  filter:
+    drop-shadow(
+      0 16px 22px
+      rgba(31, 147, 231, 0.28)
+    );
+}
+
+
+/* ANTENNA */
+
+.kiko-antenna {
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  width: 3px;
+  height: 15px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      #8df5ff,
+      #3aa8f6
+    );
+}
+
+
+.kiko-antenna span {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  left: 50%;
+  top: -5px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius: 50%;
+
+  background:
+    #6defff;
+
+  box-shadow:
+    0 0 14px
+    rgba(109,239,255,.9);
+}
+
+
+/* HEAD */
+
+.kiko-head {
+  position: absolute;
+
+  top: 13px;
+  left: 10px;
+
+  width: 68px;
+  height: 56px;
+
+  padding: 5px;
+
+  border-radius:
+    26px 26px 22px 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #d9fbff,
+      #63cff4 48%,
+      #338cf0
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.65);
+
+  box-shadow:
+    inset 0 2px 4px
+    rgba(255,255,255,.55),
+    0 8px 20px
+    rgba(28,119,205,.24);
+}
+
+
+.kiko-face {
+  width: 100%;
+  height: 100%;
+
+  border-radius:
+    20px 20px 17px 17px;
+
+  background:
+    linear-gradient(
+      160deg,
+      #102a4b,
+      #061c36
+    );
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    inset 0 0 14px
+    rgba(28,197,255,.14);
+}
+
+
+/* EYES */
+
+.kiko-eyes {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.kiko-eye {
+  display: block;
+
+  width: 11px;
+  height: 7px;
+
+  border-radius:
+    8px 8px 5px 5px;
+
+  background:
+    #72f2ff;
+
+  box-shadow:
+    0 0 10px
+    rgba(114,242,255,.85);
+}
+
+
+.kiko-smile {
+  margin-top: 7px;
+
+  width: 18px;
+  height: 7px;
+
+  border-bottom:
+    3px solid #71efff;
+
+  border-radius:
+    0 0 18px 18px;
+
+  filter:
+    drop-shadow(
+      0 0 4px
+      rgba(113,239,255,.75)
+    );
+}
+
+
+/* EARS */
+
+.kiko-ear {
+  position: absolute;
+
+  top: 31px;
+
+  width: 9px;
+  height: 23px;
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      #8be8fb,
+      #2f92ec
+    );
+}
+
+
+.kiko-ear-left {
+  left: 4px;
+}
+
+
+.kiko-ear-right {
+  right: 4px;
+}
+
+
+/* BODY */
+
+.kiko-neck {
+  position: absolute;
+
+  top: 67px;
+  left: 50%;
+
+  width: 16px;
+  height: 8px;
+
+  transform:
+    translateX(-50%);
+
+  background: #58b8ef;
+}
+
+
+.kiko-body {
+  position: absolute;
+
+  left: 21px;
+  top: 72px;
+
+  width: 46px;
+  height: 36px;
+
+  border-radius:
+    20px 20px 15px 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #b7f3fb,
+      #4ab4ee 55%,
+      #347dea
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.kiko-core {
+  width: 25px;
+  height: 25px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #d7fbff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #0c355a,
+      #11619d
+    );
+
+  box-shadow:
+    0 0 12px
+    rgba(79,222,255,.55);
+}
+
+
+/* ARMS */
+
+.kiko-arm {
+  position: absolute;
+
+  top: 77px;
+
+  width: 13px;
+  height: 29px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      #7ddcf4,
+      #358de9
+    );
+}
+
+
+.kiko-arm-left {
+  left: 10px;
+
+  transform:
+    rotate(17deg);
+}
+
+
+.kiko-arm-right {
+  right: 10px;
+
+  transform:
+    rotate(-17deg);
+}
+
+
+/* ONLINE DOT */
+
+.kiko-online {
+  position: absolute;
+
+  top: 11px;
+  right: 6px;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #35df8b;
+
+  border:
+    3px solid white;
+
+  box-shadow:
+    0 0 9px
+    rgba(53,223,139,.65);
+}
+
+
+/* MINI ROBOT */
+
+.kiko-mini-head {
+  position: relative;
+
+  width: 46px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #c4f8ff,
+      #45b8f0
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.7);
+}
+
+
+.kiko-mini-head::before {
+  content: '';
+
+  position: absolute;
+
+  inset: 5px;
+
+  border-radius: 12px;
+
+  background: #092342;
+}
+
+
+.kiko-mini-head .kiko-eye {
+  position: absolute;
+
+  z-index: 2;
+
+  top: 14px;
+
+  width: 7px;
+  height: 5px;
+}
+
+
+.kiko-mini-head .left {
+  left: 13px;
+}
+
+
+.kiko-mini-head .right {
+  right: 13px;
+}
+
+
+.kiko-mini-smile {
+  position: absolute;
+
+  z-index: 2;
+
+  width: 12px;
+  height: 5px;
+
+  left: 50%;
+  top: 22px;
+
+  transform:
+    translateX(-50%);
+
+  border-bottom:
+    2px solid #6defff;
+
+  border-radius:
+    0 0 10px 10px;
+}
+
+
+/* ANIMATIONS */
+
+@keyframes kikoRobotFloat {
+
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+
+  50% {
+    transform:
+      translateY(-7px)
+      rotate(1deg);
+  }
+
+}
+
+
+@keyframes kikoPop {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px)
+      scale(.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+.animate-kiko-pop {
+  animation:
+    kikoPop
+    .2s
+    ease-out;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+
+  .kiko-robot {
+    transform:
+      scale(.88);
+
+    transform-origin:
+      bottom right;
+  }
+
+}
+
+
+
+/* =========================================================
+   SIGNSPEAK — PRACTICE THEME
+   Olive / Stone / Copper
+========================================================= */
+
+.ss-practice-page {
+  color: var(--ss-text);
+}
+
+.ss-practice-card {
+  background: var(--ss-card) !important;
+  color: var(--ss-text) !important;
+  border: 1px solid var(--ss-border) !important;
+  box-shadow: none !important;
+}
+
+.ss-practice-title {
+  color: var(--ss-text) !important;
+}
+
+.ss-practice-body {
+  color: var(--ss-text-soft) !important;
+}
+
+.ss-practice-muted {
+  color: var(--ss-text-muted) !important;
+}
+
+.ss-practice-accent {
+  color: var(--ss-primary) !important;
+}
+
+
+/* information / instruction panel */
+
+.ss-practice-info {
+  background: var(--ss-surface-2) !important;
+  border: 1px solid var(--ss-border) !important;
+  color: var(--ss-text-soft) !important;
+}
+
+
+/* queue */
+
+.ss-practice-queue-item {
+  color: var(--ss-text-soft);
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.ss-practice-queue-item:hover {
+  background: var(--ss-surface-2);
+  border-color: var(--ss-border);
+}
+
+.ss-practice-queue-item-active {
+  background: var(--ss-nav-selected) !important;
+  border-color: var(--ss-border) !important;
+  color: var(--ss-nav-selected-text) !important;
+}
+
+.ss-practice-queue-number {
+  background: var(--ss-surface-2);
+  color: var(--ss-text-soft);
+}
+
+.ss-practice-queue-number-active {
+  background: var(--ss-primary) !important;
+  color: var(--ss-primary-contrast) !important;
+}
+
+
+/* confidence */
+
+.ss-confidence-track {
+  background: var(--ss-surface-2);
+  border: 1px solid var(--ss-border);
+}
+
+
+/* camera shell only.
+   This DOES NOT style actual camera footage. */
+
+.ss-camera {
+  background: var(--ss-surface-2);
+  border: 1px solid var(--ss-border);
+}
+
+.ss-camera-placeholder {
+  color: var(--ss-text-soft);
+}
+
+
+/* feedback states */
+
+.ss-feedback-success {
+  background: rgba(71, 101, 67, 0.10) !important;
+  border-color: rgba(71, 101, 67, 0.28) !important;
+}
+
+.ss-feedback-warning {
+  background: rgba(150, 90, 60, 0.10) !important;
+  border-color: rgba(150, 90, 60, 0.28) !important;
+}
+
+.ss-feedback-error {
+  background: rgba(160, 65, 58, 0.10) !important;
+  border-color: rgba(160, 65, 58, 0.28) !important;
+}
+
+.ss-feedback-info {
+  background: var(--ss-surface-2) !important;
+  border-color: var(--ss-border) !important;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT
+--------------------------------------------------------- */
+
+html[data-theme="light"] {
+  --ss-bg: #F2F1EC;
+  --ss-surface: #FCFBF8;
+  --ss-surface-2: #EAECE3;
+  --ss-card: #FCFBF8;
+
+  --ss-text: #242820;
+  --ss-text-soft: #63695C;
+  --ss-text-muted: #7B8174;
+
+  --ss-border: #D4D8CB;
+  --ss-control-border: #7B8471;
+
+  --ss-sidebar: #FCFBF8;
+  --ss-topbar: #FCFBF8;
+
+  --ss-primary: #4D5D3B;
+  --ss-primary-hover: #3F4D30;
+  --ss-primary-contrast: #FFFFFF;
+
+  --ss-nav-selected: #E4E8DC;
+  --ss-nav-selected-text: #3E4D2E;
+
+  --ss-copper: #965A3C;
+}
+
+
+/* ---------------------------------------------------------
+   DARK
+--------------------------------------------------------- */
+
+html[data-theme="dark"] {
+  --ss-bg: #171B16;
+  --ss-surface: #20251F;
+  --ss-surface-2: #293026;
+  --ss-card: #20251F;
+
+  --ss-text: #F0F1E9;
+  --ss-text-soft: #B3BBAA;
+  --ss-text-muted: #849178;
+
+  --ss-border: #3E4837;
+  --ss-control-border: #849178;
+
+  --ss-sidebar: #20251F;
+  --ss-topbar: #20251F;
+
+  --ss-primary: #AFBF95;
+  --ss-primary-hover: #BFCEA8;
+  --ss-primary-contrast: #192015;
+
+  --ss-nav-selected: #303A29;
+  --ss-nav-selected-text: #CCD8B9;
+
+  --ss-copper: #D0A080;
+}
+
+
+/* =========================================================
+   REMOVE OLD PRACTICE CYAN/DARK OVERRIDES
+========================================================= */
+
+.ss-practice-page .text-white {
+  color: var(--ss-text) !important;
+}
+
+.ss-practice-page .text-slate-200,
+.ss-practice-page .text-slate-300 {
+  color: var(--ss-text) !important;
+}
+
+.ss-practice-page .text-slate-400 {
+  color: var(--ss-text-soft) !important;
+}
+
+.ss-practice-page .text-slate-500,
+.ss-practice-page .text-slate-600,
+.ss-practice-page .text-slate-700 {
+  color: var(--ss-text-muted) !important;
+}
+
+.ss-practice-page .text-\[\#20d8d3\],
+.ss-practice-page .text-\[\#16c8c4\] {
+  color: var(--ss-primary) !important;
+}
+
+.ss-practice-page .bg-cyan-500\/10,
+.ss-practice-page .bg-cyan-500\/\[0\.05\] {
+  background: var(--ss-surface-2) !important;
+}
+
+.ss-practice-page .border-cyan-500\/20,
+.ss-practice-page .border-cyan-500\/30 {
+  border-color: var(--ss-border) !important;
+}
+
+
+/* transitions */
+
+.ss-practice-page,
+.ss-practice-card,
+.ss-practice-info,
+.ss-practice-queue-item,
+.ss-camera {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-practice-page *,
+  .ss-practice-page *::before,
+  .ss-practice-page *::after {
+    transition: none !important;
+  }
+}
+
+
+/* =========================================================
+   SIGNSPEAK FINAL SINGLE THEME
+   Deep Olive / Warm Stone / Muted Copper
+========================================================= */
+
+:root,
+html,
+html[data-theme="light"],
+html[data-theme="dark"] {
+
+  --ss-bg: #ECEBE5;
+
+  --ss-surface: #F8F7F3;
+  --ss-surface-2: #E2E5DB;
+  --ss-card: #F8F7F3;
+
+  --ss-sidebar: #1F271D;
+  --ss-topbar: #F8F7F3;
+
+  --ss-text: #23271F;
+  --ss-text-soft: #687062;
+  --ss-text-muted: #858D7F;
+
+  --ss-border: #CDD2C4;
+  --ss-control-border: #8C9583;
+
+  --ss-primary: #556642;
+  --ss-primary-hover: #465536;
+  --ss-primary-contrast: #FFFFFF;
+
+  --ss-nav-selected: #2F3B2B;
+  --ss-nav-selected-text: #E7ECD9;
+
+  --ss-copper: #A06446;
+
+  --ss-shadow:
+    0 8px 22px rgba(45, 52, 40, 0.08);
+}
+
+
+/* APP */
+
+html,
+body,
+#root {
+  background: var(--ss-bg) !important;
+  color: var(--ss-text) !important;
+}
+
+
+/* TOPBAR */
+
+header {
+  background: var(--ss-topbar) !important;
+  border-color: var(--ss-border) !important;
+}
+
+
+/* SIDEBAR */
+
+aside {
+  background: var(--ss-sidebar) !important;
+  border-color: #394333 !important;
+  color: #F1F3EB !important;
+}
+
+
+aside a {
+  color: #B9C1B0 !important;
+}
+
+
+aside a:hover {
+  background: rgba(255,255,255,0.05) !important;
+  color: #FFFFFF !important;
+}
+
+
+/* active navigation */
+
+aside a[aria-current="page"],
+aside a.active {
+  background: var(--ss-nav-selected) !important;
+  color: var(--ss-nav-selected-text) !important;
+}
+
+
+/* PAGE */
+
+.ss-page,
+main {
+  background: var(--ss-bg) !important;
+}
+
+
+/* CARDS */
+
+.ss-theme-card,
+.ss-card,
+.bg-card {
+  background: var(--ss-card) !important;
+  border-color: var(--ss-border) !important;
+  color: var(--ss-text) !important;
+  box-shadow: var(--ss-shadow) !important;
+}
+
+
+/* TEXT */
+
+.text-white,
+.text-slate-100,
+.text-slate-200 {
+  color: var(--ss-text) !important;
+}
+
+.text-slate-300,
+.text-slate-400 {
+  color: var(--ss-text-soft) !important;
+}
+
+.text-slate-500,
+.text-slate-600,
+.text-slate-700 {
+  color: var(--ss-text-muted) !important;
+}
+
+
+/* PRIMARY ACTIONS */
+
+.bg-primary,
+.ss-primary-button {
+  background: var(--ss-primary) !important;
+  color: var(--ss-primary-contrast) !important;
+}
+
+.bg-primary:hover,
+.ss-primary-button:hover {
+  background: var(--ss-primary-hover) !important;
+}
+
+
+/* CYAN / BLUE OVERRIDES */
+
+.text-cyan-400,
+.text-cyan-500,
+.text-\[\#20d8d3\],
+.text-\[\#16c8c4\],
+.text-\[\#42ddd8\] {
+  color: var(--ss-primary) !important;
+}
+
+
+.bg-cyan-500\/10,
+.bg-cyan-400\/10,
+.bg-cyan-500\/\[0\.05\] {
+  background: var(--ss-surface-2) !important;
+}
+
+
+.border-cyan-500\/20,
+.border-cyan-500\/30,
+.border-cyan-400\/10 {
+  border-color: var(--ss-border) !important;
+}
+
+
+/* COPPER SUPPORTING ACCENT */
+
+.ss-copper {
+  color: var(--ss-copper) !important;
+}
+
+
+/* PRACTICE */
+
+.ss-practice-page {
+  background: var(--ss-bg) !important;
+}
+
+
+.ss-practice-card {
+  background: var(--ss-card) !important;
+  border-color: var(--ss-border) !important;
+}
+
+
+.ss-practice-info {
+  background: var(--ss-surface-2) !important;
+  border-color: var(--ss-border) !important;
+}
+
+
+.ss-practice-queue-item-active {
+  background: #DDE2D5 !important;
+  border-color: #BFC7B4 !important;
+  color: #3F4C34 !important;
+}
+
+
+.ss-practice-queue-number-active {
+  background: var(--ss-primary) !important;
+  color: white !important;
+}
+
+
+/* INPUTS */
+
+input,
+textarea,
+select {
+  background: #FDFCF9 !important;
+  color: var(--ss-text) !important;
+  border-color: var(--ss-control-border) !important;
+}
+
+
+input::placeholder,
+textarea::placeholder {
+  color: #8A9184 !important;
+}
+
+
+/* FOCUS */
+
+:focus-visible {
+  outline: 2px solid var(--ss-primary) !important;
+  outline-offset: 2px;
+}
+
+
+/* reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation-duration: 0.001ms !important;
+  }
+}
+
+
+/* =========================================================
+   SIGNSPEAK — BLUE PRODUCT DESIGN
+========================================================= */
+
+html[data-theme="light"] {
+  --ss-bg: #F4F8FC;
+  --ss-surface: #FFFFFF;
+  --ss-surface-2: #EDF4FA;
+  --ss-card: #FFFFFF;
+
+  --ss-text: #142235;
+  --ss-text-soft: #65778A;
+  --ss-text-muted: #8B9AAA;
+
+  --ss-border: #D8E3ED;
+
+  --ss-sidebar: #FBFDFF;
+  --ss-topbar: rgba(255,255,255,.96);
+
+  --ss-primary: #2563EB;
+  --ss-primary-hover: #1D4ED8;
+  --ss-primary-soft: #E8F0FF;
+
+  --ss-accent: #38BDF8;
+
+  --ss-shadow:
+    0 8px 24px rgba(29,78,120,.07);
+}
+
+
+html[data-theme="dark"] {
+  --ss-bg: #081421;
+  --ss-surface: #0E1D2D;
+  --ss-surface-2: #12263A;
+  --ss-card: #0E1D2D;
+
+  --ss-text: #F3F7FB;
+  --ss-text-soft: #AFBFCE;
+  --ss-text-muted: #8092A5;
+
+  --ss-border: #263F57;
+
+  --ss-sidebar: #0A1725;
+  --ss-topbar: rgba(10,23,37,.96);
+
+  --ss-primary: #60A5FA;
+  --ss-primary-hover: #93C5FD;
+  --ss-primary-soft: #17375A;
+
+  --ss-accent: #67E8F9;
+
+  --ss-shadow: none;
+}
+
+
+/* APP */
+
+body,
+#root,
+.ss-page {
+  background: var(--ss-bg) !important;
+  color: var(--ss-text) !important;
+}
+
+
+/* CARDS */
+
+.ss-card,
+.ss-theme-card {
+  background: var(--ss-card) !important;
+  color: var(--ss-text) !important;
+
+  border: 1px solid var(--ss-border) !important;
+
+  box-shadow: var(--ss-shadow) !important;
+
+  border-radius: 16px !important;
+}
+
+
+/* TEXT */
+
+.ss-title,
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3 {
+  color: var(--ss-text) !important;
+}
+
+.ss-copy {
+  color: var(--ss-text-soft) !important;
+}
+
+.ss-muted {
+  color: var(--ss-text-muted) !important;
+}
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+header {
+  background: var(--ss-topbar) !important;
+  border-color: var(--ss-border) !important;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+aside {
+  background: var(--ss-sidebar) !important;
+  border-color: var(--ss-border) !important;
+}
+
+
+/* Normal sidebar links */
+
+html[data-theme="light"] aside a {
+  color: #66788A;
+}
+
+
+/* Remove old navy active state */
+
+html[data-theme="light"] aside a[href="/dashboard"] {
+  background: var(--ss-primary-soft) !important;
+  color: var(--ss-primary) !important;
+  box-shadow: none !important;
+}
+
+
+html[data-theme="light"] aside a[href="/dashboard"] svg {
+  color: var(--ss-primary) !important;
+}
+
+
+html[data-theme="light"] aside a[href="/dashboard"] div {
+  background: #DDEAFF !important;
+  color: var(--ss-primary) !important;
+}
+
+
+/* =========================================================
+   DASHBOARD HERO
+========================================================= */
+
+.ss-dashboard-hero {
+  background:
+    radial-gradient(
+      circle at 87% 16%,
+      rgba(56,189,248,.18),
+      transparent 30%
+    ),
+    linear-gradient(
+      115deg,
+      #FFFFFF 0%,
+      #F2F7FC 55%,
+      #E2F0FF 100%
+    ) !important;
+
+  border: 1px solid var(--ss-border) !important;
+
+  box-shadow: var(--ss-shadow) !important;
+
+  border-radius: 24px !important;
+}
+
+
+html[data-theme="dark"] .ss-dashboard-hero {
+  background:
+    radial-gradient(
+      circle at 87% 16%,
+      rgba(96,165,250,.18),
+      transparent 30%
+    ),
+    linear-gradient(
+      115deg,
+      #0D2032,
+      #102942,
+      #14365A
+    ) !important;
+}
+
+
+/* =========================================================
+   DASHBOARD METRIC CARDS
+========================================================= */
+
+.ss-metric-card {
+  background: var(--ss-surface) !important;
+
+  border:
+    1px solid var(--ss-border) !important;
+
+  box-shadow:
+    var(--ss-shadow) !important;
+
+  border-radius: 16px !important;
+}
+
+
+.ss-icon-chip {
+  background: var(--ss-primary-soft) !important;
+  color: var(--ss-primary) !important;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.ss-primary-button,
+.ss-button-primary {
+  background: var(--ss-primary) !important;
+  color: #FFFFFF !important;
+
+  border: none !important;
+
+  box-shadow: none !important;
+}
+
+
+.ss-primary-button:hover,
+.ss-button-primary:hover {
+  background:
+    var(--ss-primary-hover) !important;
+}
+
+
+.ss-button-secondary {
+  background: var(--ss-surface) !important;
+
+  color: var(--ss-text) !important;
+
+  border:
+    1px solid var(--ss-border) !important;
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.ss-progress-track {
+  background:
+    var(--ss-surface-2) !important;
+}
+
+
+.ss-progress-fill {
+  background:
+    linear-gradient(
+      90deg,
+      #2563EB,
+      #38BDF8
+    ) !important;
+}
+
+
+/* =========================================================
+   OLD DARK COMPONENT FIX
+========================================================= */
+
+html[data-theme="light"] .bg-slate-950,
+html[data-theme="light"] .bg-\[\#111827\],
+html[data-theme="light"] .bg-\[\#11161f\],
+html[data-theme="light"] .bg-\[\#0d131e\],
+html[data-theme="light"] .bg-\[\#0b111c\],
+html[data-theme="light"] .bg-\[\#141a24\],
+html[data-theme="light"] .bg-\[\#141a22\] {
+  background:
+    var(--ss-surface) !important;
+}
+
+
+html[data-theme="light"] .text-white,
+html[data-theme="light"] .text-slate-100,
+html[data-theme="light"] .text-slate-200 {
+  color:
+    var(--ss-text) !important;
+}
+
+
+html[data-theme="light"] .text-slate-300,
+html[data-theme="light"] .text-slate-400 {
+  color:
+    var(--ss-text-soft) !important;
+}
+
+
+html[data-theme="light"] .text-slate-500,
+html[data-theme="light"] .text-slate-600,
+html[data-theme="light"] .text-slate-700 {
+  color:
+    var(--ss-text-muted) !important;
+}
+
+
+html[data-theme="light"] .border-slate-700,
+html[data-theme="light"] .border-slate-800 {
+  border-color:
+    var(--ss-border) !important;
+}
+
+
+/* =========================================================
+   KIKO — BLUE ROBOT
+========================================================= */
+
+.kiko-robot {
+  filter:
+    drop-shadow(
+      0 12px 18px
+      rgba(37,99,235,.20)
+    ) !important;
+}
+
+
+.kiko-head {
+  background:
+    linear-gradient(
+      145deg,
+      #DFF5FF,
+      #7DD3FC 46%,
+      #3B82F6
+    ) !important;
+}
+
+
+.kiko-face {
+  background:
+    #0B2540 !important;
+}
+
+
+.kiko-eye {
+  background:
+    #8BE9FF !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(139,233,255,.8) !important;
+}
+
+
+.kiko-smile {
+  border-color:
+    #8BE9FF !important;
+}
+
+
+.kiko-body {
+  background:
+    linear-gradient(
+      145deg,
+      #BCEBFF,
+      #60A5FA 56%,
+      #2563EB
+    ) !important;
+}
+
+
+.kiko-core {
+  background:
+    #123F6D !important;
+
+  color:
+    white !important;
+}
+
+
+/* KIKO MESSAGE */
+
+.kiko-message,
+.kiko-chat {
+  background:
+    var(--ss-surface) !important;
+
+  border-color:
+    var(--ss-border) !important;
+
+  color:
+    var(--ss-text) !important;
+}
+
+
+/* =========================================================
+   PRACTICE LIGHT MODE
+========================================================= */
+
+html[data-theme="light"] .practice-page section,
+html[data-theme="light"] .practice-page .practice-panel {
+  background:
+    var(--ss-surface) !important;
+
+  border-color:
+    var(--ss-border) !important;
+}
+
+
+html[data-theme="light"] .practice-page .camera-shell {
+  background:
+    #E9EFF5 !important;
+}
+
+
+/* =========================================================
+   TRANSITIONS
+========================================================= */
+
+body,
+header,
+aside,
+main,
+.ss-card,
+.ss-dashboard-hero,
+.ss-metric-card {
+  transition:
+    background .18s ease,
+    color .18s ease,
+    border-color .18s ease;
+}
+
+
+/* =========================================================
+   REPORTS - DATE RANGE SELECT FIX
+========================================================= */
+
+.ss-report-range,
+select.ss-report-range {
+  appearance: none;
+  -webkit-appearance: none;
+
+  min-width: 190px;
+  height: 46px;
+
+  padding: 0 44px 0 16px;
+
+  border-radius: 10px;
+
+  background-color: #172219 !important;
+
+  border: 1px solid #59684a !important;
+
+  color: #d9e2cb !important;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  outline: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, #aebe95 50%),
+    linear-gradient(135deg, #aebe95 50%, transparent 50%);
+
+  background-position:
+    calc(100% - 18px) 19px,
+    calc(100% - 13px) 19px;
+
+  background-size:
+    5px 5px,
+    5px 5px;
+
+  background-repeat: no-repeat;
+}
+
+.ss-report-range:hover {
+  background-color: #1d291e !important;
+  border-color: #84956d !important;
+}
+
+.ss-report-range:focus {
+  border-color: #aebe95 !important;
+  box-shadow: 0 0 0 3px rgba(174, 190, 149, 0.10);
+}
+
+.ss-report-range option {
+  background: #20251f;
+  color: #f0f1e9;
+}
+
+
+/* ===== FORCE FIX REPORT RANGE DROPDOWN ===== */
+
+select.ss-report-range {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+
+  background-color: #20251F !important;
+  color: #F0F1E9 !important;
+
+  border: 1px solid #59664F !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  min-width: 200px !important;
+  height: 46px !important;
+
+  padding: 0 42px 0 16px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 14px !important;
+  font-weight: 600 !important;
+
+  cursor: pointer !important;
+
+  color-scheme: dark !important;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, #AFBF95 50%),
+    linear-gradient(135deg, #AFBF95 50%, transparent 50%) !important;
+
+  background-position:
+    calc(100% - 18px) 19px,
+    calc(100% - 13px) 19px !important;
+
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+}
+
+select.ss-report-range:hover {
+  background-color: #293026 !important;
+  border-color: #849178 !important;
+}
+
+select.ss-report-range:focus,
+select.ss-report-range:focus-visible {
+  background-color: #20251F !important;
+  color: #F0F1E9 !important;
+
+  border: 1px solid #AFBF95 !important;
+
+  outline: none !important;
+
+  box-shadow:
+    0 0 0 2px rgba(175,191,149,0.12) !important;
+}
+
+select.ss-report-range option {
+  background-color: #20251F !important;
+  color: #F0F1E9 !important;
+}
+
+/* Kill browser autofill/control white styling */
+select.ss-report-range:-webkit-autofill {
+  -webkit-text-fill-color: #F0F1E9 !important;
+  -webkit-box-shadow:
+    0 0 0 1000px #20251F inset !important;
+}
+
+
+/* =========================================================
+   REPORTS — DATE RANGE DROPDOWN FIX
+   ========================================================= */
+
+.reports-range-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  background-color: #111d2b !important;
+  color: #f1f5f9 !important;
+
+  border: 1px solid #31445a !important;
+  border-radius: 12px !important;
+
+  min-width: 200px !important;
+  height: 48px !important;
+
+  padding: 0 48px 0 16px !important;
+
+  font-size: 14px !important;
+  font-weight: 600 !important;
+
+  outline: none !important;
+
+  cursor: pointer !important;
+
+  box-shadow: none !important;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease !important;
+}
+
+.reports-range-select:hover {
+  background-color: #152435 !important;
+  border-color: #4a627a !important;
+}
+
+.reports-range-select:focus {
+  background-color: #152435 !important;
+  color: #ffffff !important;
+
+  border-color: #14c9c5 !important;
+
+  box-shadow:
+    0 0 0 3px rgba(20, 201, 197, 0.12) !important;
+}
+
+.reports-range-select option {
+  background-color: #111d2b !important;
+  color: #f1f5f9 !important;
+}
+
+/* Prevent browser/autofill/native styling */
+.reports-range-select:-webkit-autofill,
+.reports-range-select:-webkit-autofill:hover,
+.reports-range-select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f1f5f9 !important;
+  -webkit-box-shadow:
+    0 0 0 1000px #111d2b inset !important;
+}
+
+
+
+/* =========================================================
+   SIGNSPEAK SELECT CONTROLS
+========================================================= */
+
+.ss-select {
+  background-color: var(--ss-surface-2) !important;
+  color: var(--ss-text) !important;
+  border-color: var(--ss-border) !important;
+
+  box-shadow: none !important;
+}
+
+.ss-select:hover {
+  border-color: var(--ss-text-muted) !important;
+}
+
+.ss-select:focus {
+  border-color: var(--ss-accent) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(43, 211, 206, 0.10) !important;
+}
+
+.ss-select option {
+  background-color: var(--ss-surface) !important;
+  color: var(--ss-text) !important;
+}
+
+
+/* Explicit dark theme protection */
+
+html[data-theme="dark"] .ss-select {
+  background-color: #111d2b !important;
+  color: #f1f5f9 !important;
+  border-color: #2b4055 !important;
+}
+
+html[data-theme="dark"] .ss-select option {
+  background-color: #111d2b !important;
+  color: #f1f5f9 !important;
+}
+
+
+/* Light theme */
+
+html[data-theme="light"] .ss-select {
+  background-color: #ffffff !important;
+  color: #242820 !important;
+  border-color: #d4d8cb !important;
+}
+
+html[data-theme="light"] .ss-select option {
+  background-color: #ffffff !important;
+  color: #242820 !important;
+}
+
+
+/* Error state */
+
+.ss-select-error {
+  border-color: #ef4444 !important;
+}
+

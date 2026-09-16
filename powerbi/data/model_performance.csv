@@ -1,0 +1,4 @@
+Model,Validation Accuracy,Test Accuracy,External Accuracy,Training Time Seconds,Model Type
+HOG + Linear SVM,91.14,91.09,0.0,431.02,Traditional ML
+CNN + Data Augmentation,91.62,90.98,0.0,0.0,Deep Learning
+CNN + Strong Augmentation,88.97,90.98,20.0,219.08,Deep Learning
