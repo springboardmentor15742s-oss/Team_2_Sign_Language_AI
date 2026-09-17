@@ -1,0 +1,84 @@
+.DS_Store
+.env
+backend/venv/
+backend/__pycache__/
+signspeak-frontend/node_modules/
+*.pyc
+
+node_modules/
+dist/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# ML environment
+ml/venv/
+ml/**/__pycache__/
+ml/.ipynb_checkpoints/
+
+# ML datasets
+ml/data/raw/*
+ml/data/processed/*
+ml/data/landmarks/*
+
+# Trained model artifacts
+ml/models/*.pkl
+ml/models/*.joblib
+ml/models/*.h5
+ml/models/*.keras
+ml/models/*.pt
+ml/models/*.pth
+ml/models/*.onnx
+
+# MLflow
+ml/mlruns/
+ml/mlartifacts/
+!ml/data/raw/.gitkeep
+!ml/data/processed/.gitkeep
+!ml/data/landmarks/.gitkeep
+ml/notebooks/.ipynb_checkpoints/
+
+# ML generated features
+ml/data/features/
+
+# Downloaded ML model assets
+ml/models/mediapipe/
+
+# Generated trained ML models
+ml/models/trained/
+
+# Environment files
+.env.*
+!.env.example
+frontend/.env
+backend/.env
+
+# Local ML environment
+ml/cnn_venv/
+
+# Personal/custom external test images
+ml/data/custom_test/
+RISE-RST/
+
+# Temporary development artifacts
+SignSpeak-Frontend-Current.zip
+frontend-ui-backup/
+backend-landmark.log
+*.backup
+*.before_*
+*.before_landmarks
+*.before_landmark_collection
+*ml_inference_experiment.py
+
+# Local development artifacts
+SignSpeak-Frontend-Current.zip
+frontend-ui-backup/
+backend-landmark.log
+*.backup
+*.before_*
+*.before_landmarks
+*.before_landmark_collection
+.DS_Store
+frontend/dist/
+frontend/node_modules/

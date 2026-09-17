@@ -1,0 +1,3 @@
+Model,Feature Extraction,Training Samples,Validation Samples,Test Samples,Classes,Features Per Image,Training Time (s),Validation Accuracy (%),Test Accuracy (%),Correct Test Predictions,Incorrect Test Predictions
+Linear SVM,HOG,14500,8700,8700,29,8100,431.02,91.14,91.09,7925,775
+SGD Classifier,HOG,14500,8700,Not used,29,8100,12.64,88.95,Not evaluated,-,-
